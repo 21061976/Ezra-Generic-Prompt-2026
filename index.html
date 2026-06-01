@@ -1,451 +1,1513 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EZRA 5.0 — מחולל דוחות ניהול סיכונים</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZRA Generic Prompt 2026 — מחולל דוחות ניהול סיכונים</title>
+  <meta name="description" content="ממשק סטטי ליצירת דוחות ניהול סיכונים חינוכיים בעזרת כל מודל שפה: ChatGPT, Claude, Gemini, Copilot ועוד." />
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#1a3a5c,#2c3e50);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px 16px;color:#2c3e50}
-.card{background:white;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.3);max-width:640px;width:100%;overflow:hidden}
-.top{background:linear-gradient(135deg,#2c3e50,#1a3a5c);color:white;padding:32px 36px;text-align:center}
-.top h1{font-size:2.2em;font-weight:800;margin-bottom:6px}
-.top h1 span{color:#3498db}
-.top p{opacity:.85;font-size:.95em}
-.body{padding:32px 36px}
+/* EZRA Generic — clean static UI for GitHub Pages */
+:root{
+  --bg-a:#667eea;
+  --bg-b:#764ba2;
+  --ink:#243447;
+  --muted:#667085;
+  --card:#ffffff;
+  --soft:#f6f8fb;
+  --line:#e7edf5;
+  --brand:#3157d5;
+  --brand-2:#8e44ad;
+  --dark:#1f3046;
+  --danger:#e74c3c;
+  --warn:#f39c12;
+  --medium:#d9a600;
+  --ok:#27ae60;
+  --radius:20px;
+  --shadow:0 24px 70px rgba(0,0,0,.18);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:"Segoe UI",Tahoma,Arial,sans-serif;
+  line-height:1.65;
+  color:var(--ink);
+  background:linear-gradient(135deg,var(--bg-a),var(--bg-b));
+  min-height:100vh;
+}
+button,input,textarea{font:inherit}
+.app-shell{
+  width:min(1180px,calc(100% - 28px));
+  margin:18px auto;
+  background:rgba(255,255,255,.98);
+  border-radius:24px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.hero{
+  padding:54px 34px 38px;
+  text-align:center;
+  color:#fff;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(255,255,255,.18),transparent 26%),
+    linear-gradient(135deg,#1a3a5c,#2c3e50);
+}
+.hero__badge{
+  display:inline-block;
+  padding:7px 14px;
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.14);
+  border-radius:999px;
+  font-weight:800;
+  margin-bottom:14px;
+}
+.hero h1{
+  margin:0 0 10px;
+  font-size:clamp(2rem,5vw,3.4rem);
+  line-height:1.12;
+}
+.hero p{
+  max-width:780px;
+  margin:0 auto 22px;
+  font-size:1.08rem;
+  opacity:.92;
+}
+.hero__actions,.inline-actions{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.model-strip{
+  margin:22px auto 0;
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.model-strip span{
+  background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.2);
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:.86rem;
+}
+.btn{
+  border:0;
+  border-radius:999px;
+  padding:11px 18px;
+  font-weight:800;
+  cursor:pointer;
+  transition:transform .15s ease,box-shadow .15s ease,background .15s ease;
+  box-shadow:0 8px 20px rgba(0,0,0,.10);
+}
+.btn:hover{transform:translateY(-1px)}
+.btn--primary{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff}
+.btn--ghost{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);color:#fff}
+.btn--soft{background:#eef3ff;color:#243b80}
+.btn--dark{background:#253a53;color:#fff}
+.builder{
+  padding:34px;
+  display:grid;
+  gap:22px;
+}
+.step-card{
+  display:grid;
+  grid-template-columns:70px 1fr;
+  gap:18px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px;
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+}
+.step-card__num{
+  width:58px;height:58px;
+  display:grid;place-items:center;
+  color:#fff;
+  background:linear-gradient(135deg,var(--danger),#c0392b);
+  border-radius:18px;
+  font-size:1.8rem;
+  font-weight:900;
+}
+.step-card h2{margin:0 0 4px;font-size:1.35rem;color:#192f48}
+.step-card p{margin:0 0 14px;color:var(--muted)}
+.file-drop{
+  display:grid;
+  place-items:center;
+  gap:4px;
+  border:2px dashed #b8c4d6;
+  background:var(--soft);
+  border-radius:18px;
+  padding:18px;
+  cursor:pointer;
+  margin-bottom:14px;
+}
+.file-drop input{display:none}
+.file-drop__icon{font-size:2rem}
+.file-drop__text{font-weight:800;color:#243b80}
+.file-drop small{color:var(--muted)}
+.textarea{
+  width:100%;
+  resize:vertical;
+  border:1px solid #ccd6e3;
+  border-radius:16px;
+  padding:14px;
+  background:#fff;
+  color:#1f3046;
+  outline:none;
+  min-height:120px;
+}
+.textarea:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px rgba(49,87,213,.12);
+}
+.textarea--code{
+  direction:ltr;
+  text-align:left;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.9rem;
+  line-height:1.5;
+}
+.tiny{font-size:.86rem;color:var(--muted)}
+.copy-status{font-size:.9rem;font-weight:800;color:var(--ok)}
+.hint{
+  margin-top:14px;
+  background:#f0f8ff;
+  border-right:5px solid #3498db;
+  padding:12px 14px;
+  border-radius:14px;
+  color:#244766;
+}
+.report-panel{
+  padding:0 34px 34px;
+}
+.toolbar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  flex-wrap:wrap;
+  padding:12px;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(8px);
+  border-block:1px solid var(--line);
+}
 
-/* DEMO BUTTON */
-.demo-btn{width:100%;padding:18px;border:none;border-radius:16px;background:linear-gradient(135deg,#f39c12,#e67e22);color:white;font-size:1.15em;font-weight:800;cursor:pointer;box-shadow:0 8px 25px rgba(243,156,18,.4);transition:all .3s;margin-bottom:28px}
-.demo-btn:hover{transform:translateY(-3px);box-shadow:0 14px 35px rgba(243,156,18,.5)}
+/* Rendered report */
+.report{
+  background:#fff;
+  border-radius:22px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  box-shadow:0 14px 44px rgba(0,0,0,.08);
+}
+.report__header{
+  background:linear-gradient(135deg,#1a3a5c,#2c3e50);
+  color:#fff;
+  text-align:center;
+  padding:46px 34px;
+}
+.report__header h2{
+  margin:0 0 8px;
+  font-size:clamp(1.8rem,4vw,2.7rem);
+}
+.report__header p{margin:0;opacity:.92}
+.report__meta{
+  display:inline-block;
+  margin-top:12px;
+  background:rgba(255,255,255,.18);
+  border-radius:999px;
+  padding:6px 14px;
+  font-size:.9rem;
+}
+.report-section{padding:34px}
+.report-section__title{
+  margin:-34px -34px 24px;
+  padding:18px;
+  text-align:center;
+  color:#fff;
+  background:linear-gradient(135deg,#e74c3c,#c0392b);
+  font-size:1.55rem;
+  font-weight:900;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:16px;
+}
+.info-card,.goal-card,.deliverable-card,.exec-card,.component-card{
+  background:var(--soft);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 8px 22px rgba(0,0,0,.05);
+}
+.info-card{border-top:4px solid #3498db}
+.goal-card,.deliverable-card{border-right:5px solid var(--ok);margin:12px 0}
+.info-card h3,.goal-card h3,.deliverable-card h3{margin:0 0 8px;color:#18324a;font-size:1.02rem}
+.risk-summary{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+  margin-bottom:24px;
+}
+.sum-card{
+  text-align:center;
+  border-radius:16px;
+  background:var(--soft);
+  padding:16px;
+  box-shadow:0 8px 22px rgba(0,0,0,.05);
+}
+.sum-card strong{display:block;font-size:2.2rem}
+.c-vh{color:var(--danger)}.c-h{color:var(--warn)}.c-m{color:var(--medium)}.c-l{color:var(--ok)}
+.risks-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
+  gap:18px;
+}
+.risk-card{
+  background:#fff;
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 12px 32px rgba(0,0,0,.09);
+  border-top:6px solid #ddd;
+}
+.risk-card--very-high{border-top-color:var(--danger)}
+.risk-card--high{border-top-color:var(--warn)}
+.risk-card--medium{border-top-color:var(--medium)}
+.risk-card--low{border-top-color:var(--ok)}
+.risk-card__head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  margin-bottom:10px;
+}
+.risk-card h3{margin:0;color:#18324a;font-size:1.08rem}
+.severity{
+  display:inline-block;
+  color:#fff;
+  border-radius:999px;
+  padding:4px 10px;
+  font-weight:900;
+  font-size:.78rem;
+  white-space:nowrap;
+}
+.severity--very-high{background:var(--danger)}
+.severity--high{background:var(--warn)}
+.severity--medium{background:var(--medium);color:#1f3046}
+.severity--low{background:var(--ok)}
+.metric-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:14px 0;
+}
+.metric{
+  text-align:center;
+  background:var(--soft);
+  border-radius:12px;
+  padding:10px;
+}
+.metric strong{display:block;font-size:1.45rem;color:#18324a}
+.desc{
+  background:var(--soft);
+  border-right:4px solid #bdc3c7;
+  padding:12px;
+  border-radius:12px;
+  margin:12px 0;
+}
+.clean-list{
+  list-style:none;
+  padding:0;
+  margin:8px 0 12px;
+}
+.clean-list li{
+  border-bottom:1px solid var(--line);
+  padding:6px 0;
+  font-size:.92rem;
+}
+.source-box{
+  background:#fff7e6;
+  border-right:4px solid var(--warn);
+  padding:10px;
+  border-radius:12px;
+  font-size:.86rem;
+}
+.strategy-card{
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,.07);
+  margin:16px 0;
+}
+.strategy-card h3{
+  margin:0;
+  color:#fff;
+  background:linear-gradient(135deg,#27ae60,#2ecc71);
+  padding:15px 18px;
+}
+.strategy-card__body{padding:18px}
+.strategy-items{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:12px;
+  margin-top:14px;
+}
+.strategy-item{
+  background:var(--soft);
+  border-right:4px solid var(--ok);
+  border-radius:14px;
+  padding:14px;
+}
+.strategy-item h4{margin:0 0 6px;color:#197344}
+.pill{
+  display:inline-block;
+  margin-top:8px;
+  padding:3px 10px;
+  border-radius:999px;
+  color:#fff;
+  background:#3498db;
+  font-size:.78rem;
+  font-weight:900;
+}
+.pill--kpi{background:var(--brand-2)}
+.innovation-box{
+  background:linear-gradient(135deg,#8e44ad,#9b59b6);
+  color:#fff;
+  border-radius:18px;
+  padding:28px;
+  text-align:center;
+}
+.innovation-score{
+  font-size:4rem;
+  font-weight:900;
+  line-height:1;
+  margin:10px 0;
+}
+.component-card{
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.2);
+  color:#fff;
+}
+.component-card strong{
+  display:block;
+  color:#f5c542;
+  font-size:2rem;
+}
+.reg-table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 8px 22px rgba(0,0,0,.06);
+}
+.reg-table th{
+  background:#34495e;
+  color:#fff;
+  text-align:right;
+  padding:13px;
+}
+.reg-table td{
+  padding:13px;
+  border-bottom:1px solid var(--line);
+  vertical-align:top;
+}
+.status{
+  display:inline-block;
+  border-radius:999px;
+  padding:4px 10px;
+  color:#fff;
+  font-weight:900;
+  font-size:.8rem;
+}
+.status--full{background:var(--ok)}
+.status--partial{background:var(--warn)}
+.status--dev{background:#3498db}
+.status--improve{background:var(--danger)}
+.exec-section{
+  background:linear-gradient(135deg,#2c3e50,#34495e);
+  color:#fff;
+}
+.exec-section .report-section__title{
+  background:transparent;
+  color:#f5c542;
+}
+.exec-card{
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.12);
+}
+.exec-card h3{color:#f5c542;margin:0 0 8px}
+.footer{
+  padding:22px;
+  background:#111d29;
+  color:#c3ced8;
+  text-align:center;
+  font-size:.9rem;
+}
+.footer p{margin:3px 0}
+.editable[contenteditable=true]{
+  outline:2px dashed #3498db;
+  background:rgba(52,152,219,.08);
+  border-radius:6px;
+}
+@media(max-width:760px){
+  .app-shell{width:100%;margin:0;border-radius:0}
+  .builder,.report-panel{padding:18px}
+  .step-card{grid-template-columns:1fr}
+  .step-card__num{width:50px;height:50px}
+  .risk-summary{grid-template-columns:1fr 1fr}
+  .metric-row{grid-template-columns:1fr}
+  .reg-table{display:block;overflow-x:auto}
+}
+@media print{
+  body{background:#fff}
+  .app-shell{box-shadow:none;width:100%;margin:0;border-radius:0}
+  .hero,.builder,.toolbar,.footer{display:none!important}
+  .report-panel{padding:0}
+  .report{box-shadow:none;border:0;border-radius:0}
+  .risk-card,.strategy-card,.info-card,.goal-card,.deliverable-card{page-break-inside:avoid}
+  @page{size:A4;margin:10mm}
+}
 
-.or-divider{text-align:center;color:#bdc3c7;font-size:.85em;font-weight:600;margin:0 0 28px;display:flex;align-items:center;gap:12px}
-.or-divider::before,.or-divider::after{content:'';flex:1;border-top:1px solid #ecf0f1}
-
-/* STEPS */
-.step-block{margin-bottom:24px}
-.step-label{font-size:.82em;font-weight:700;color:#95a5a6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.step-label .num{background:#2c3e50;color:white;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.82em;flex-shrink:0}
-
-/* UPLOAD */
-.upload-box{border:2px dashed #bdc3c7;border-radius:14px;padding:18px;background:#fafbfc;transition:all .3s}
-.upload-box:focus-within{border-color:#3498db;background:white}
-.upload-box.filled{border-color:#27ae60;border-style:solid;background:#f0faf5}
-.upload-box textarea{width:100%;min-height:120px;border:none;outline:none;resize:vertical;font-size:.93em;font-family:inherit;color:#2c3e50;background:transparent;direction:rtl}
-.upload-box textarea::placeholder{color:#bdc3c7}
-.file-row{display:flex;align-items:center;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid #ecf0f1}
-.file-pick{background:#f8f9fa;border:1.5px solid #dee2e6;color:#34495e;padding:7px 14px;border-radius:9px;cursor:pointer;font-size:.85em;font-weight:600;transition:all .2s;white-space:nowrap}
-.file-pick:hover{background:#e9ecef}
-.file-lbl{font-size:.8em;color:#95a5a6}
-input[type=file]{display:none}
-
-/* COPY BTN */
-.copy-btn{width:100%;padding:19px;border:none;border-radius:16px;background:linear-gradient(135deg,#3498db,#2980b9);color:white;font-size:1.2em;font-weight:800;cursor:pointer;box-shadow:0 8px 25px rgba(52,152,219,.4);transition:all .3s}
-.copy-btn:hover{transform:translateY(-3px);box-shadow:0 14px 35px rgba(52,152,219,.5)}
-.copy-btn.done{background:linear-gradient(135deg,#27ae60,#1e8449)}
-
-/* SUCCESS */
-.ok-box{display:none;background:#eafaf1;border:1.5px solid #a9dfbf;border-radius:12px;padding:16px 20px;font-size:.9em;color:#1e8449;line-height:1.9;margin-top:14px}
-.ok-box.show{display:block}
-.ok-box strong{color:#145a32}
-.ok-box .ai-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.chip{padding:4px 11px;border-radius:14px;font-size:.78em;font-weight:600}
-.cb{background:#ebf5fb;color:#2980b9}.cg{background:#eafaf1;color:#229954}.cy{background:#fef9e7;color:#b7950b}.cp{background:#f5eef8;color:#7d3c98}
-
-/* STEP 3 */
-.step3{display:none;margin-top:24px;padding-top:24px;border-top:1px solid #f0f0f0}
-.step3.show{display:block}
-.paste-area{width:100%;min-height:110px;border:2px dashed #bdc3c7;border-radius:14px;padding:14px;font-size:.88em;font-family:monospace;color:#2c3e50;resize:vertical;outline:none;transition:border-color .3s;background:#fafbfc;direction:rtl}
-.paste-area:focus{border-color:#27ae60}
-.paste-area.filled{border-color:#27ae60;border-style:solid;background:#f0faf5}
-.gen-btn{width:100%;margin-top:12px;padding:17px;border:none;border-radius:14px;background:linear-gradient(135deg,#27ae60,#1e8449);color:white;font-size:1.1em;font-weight:700;cursor:pointer;box-shadow:0 8px 25px rgba(39,174,96,.35);transition:all .3s}
-.gen-btn:hover{transform:translateY(-2px)}
-.err{background:#fdf2f2;border:1px solid #e74c3c;color:#c0392b;border-radius:9px;padding:11px 15px;margin-top:10px;font-size:.88em;display:none}
-.foot{text-align:center;padding:16px;border-top:1px solid #f0f0f0;font-size:.76em;color:#bdc3c7}
-.foot strong{color:#3498db}
-@media(max-width:480px){.body{padding:22px 18px}.top{padding:24px 18px}}
-@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}.rpt-btns,.r-nav{display:none!important}body{background:white!important;display:block!important;padding:0!important}.card{display:none!important}#reportWrapper{position:static!important;overflow:visible!important}#reportWrapper>div{box-shadow:none!important;border-radius:0!important;max-width:100%!important}@page{margin:10mm;size:A4}}
 </style>
 </head>
 <body>
-<div class="card">
-
-  <div class="top">
-    <h1>⚠️ <span>EZRA</span> 5.0</h1>
-    <p>מחולל דוחות ניהול סיכונים — משרד החינוך</p>
-  </div>
-
-  <div class="body">
-
-    <!-- DEMO -->
-    <button class="demo-btn" onclick="showDemo()">👁️ &nbsp; ראה דוח לדוגמה ←</button>
-    <div class="or-divider">או צור דוח חדש</div>
-
-    <!-- STEP 1 -->
-    <div class="step-block">
-      <div class="step-label"><span class="num">1</span> הדבק או העלה את מסמך התפיסה</div>
-      <div class="upload-box" id="uploadBox">
-        <textarea id="docText" placeholder="הדבק כאן את מסמך התפיסה...&#10;(Word שהועתק, PDF שהועתק, טקסט חופשי — הכל עובד)"></textarea>
-        <div class="file-row">
-          <button class="file-pick" onclick="document.getElementById('fi').click()">📎 העלה קובץ TXT</button>
-          <span class="file-lbl" id="flbl">קבצי טקסט בלבד</span>
-          <input type="file" id="fi" accept=".txt,.md" onchange="readFile(this)">
-        </div>
+  <div class="app-shell">
+    <header class="hero">
+      <div class="hero__badge">⚠️ EZRA Generic</div>
+      <h1>מחולל דוחות ניהול סיכונים</h1>
+      <p>ממשק פשוט שעובד עם כל מודל שפה: מדביקים מסמך תפיסה, מעתיקים פרומפט, מחזירים JSON, ומקבלים דוח מעוצב.</p>
+      <div class="hero__actions">
+        <button class="btn btn--ghost" id="loadSampleBtn">ראה דוח לדוגמה ←</button>
+        <button class="btn btn--primary" id="scrollToBuilderBtn">צור דוח חדש</button>
       </div>
-    </div>
-
-    <!-- STEP 2 -->
-    <div class="step-block">
-      <div class="step-label"><span class="num">2</span> העתק את הפרומפט — הדבק בכל AI</div>
-      <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">📋 &nbsp; העתק פרומפט — לחץ כאן</button>
-      <div class="ok-box" id="okBox">
-        ✅ <strong>הפרומפט הועתק!</strong><br>
-        עכשיו: פתח Claude / ChatGPT / Gemini ← הדבק (Ctrl+V) ← שלח ← העתק את <strong>כל</strong> התשובה ← חזור לכאן לשלב 3
-        <div class="ai-chips">
-          <span>עובד עם:</span>
-          <span class="chip cb">Claude</span><span class="chip cg">ChatGPT</span><span class="chip cy">Gemini</span><span class="chip cp">Copilot</span>
-        </div>
+      <div class="model-strip" aria-label="מודלים נתמכים">
+        <span>Claude</span>
+        <span>ChatGPT</span>
+        <span>Gemini</span>
+        <span>Copilot</span>
+        <span>כל LLM שמחזיר JSON</span>
       </div>
-    </div>
+    </header>
 
-    <!-- STEP 3 -->
-    <div class="step3" id="step3">
-      <div class="step-label"><span class="num">3</span> הדבק את תשובת ה-AI ← לחץ "צור דוח"</div>
-      <textarea class="paste-area" id="aiRes" placeholder="הדבק כאן את כל התשובה מה-AI..."></textarea>
-      <div class="err" id="errBox"></div>
-      <button class="gen-btn" onclick="genReport()">✅ &nbsp; צור דוח</button>
-    </div>
+    <main id="builder" class="builder">
+      <section class="step-card">
+        <div class="step-card__num">1</div>
+        <div class="step-card__body">
+          <h2>הדבק או העלה את מסמך התפיסה</h2>
+          <p>הטקסט נשאר בדפדפן שלך. אין שרת, אין שמירה חיצונית, ואין API.</p>
 
+          <label class="file-drop" for="conceptFile">
+            <input id="conceptFile" type="file" accept=".txt,.md,.json,.csv" />
+            <span class="file-drop__icon">📄</span>
+            <span class="file-drop__text">העלה קובץ טקסט</span>
+            <small>TXT / MD / JSON / CSV</small>
+          </label>
+
+          <textarea id="conceptInput" class="textarea" rows="10" placeholder="הדבק כאן את מסמך התפיסה..."></textarea>
+
+          <div class="inline-actions">
+            <button class="btn btn--soft" id="clearConceptBtn">נקה מסמך</button>
+            <span class="tiny" id="conceptStats">0 תווים</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="step-card">
+        <div class="step-card__num">2</div>
+        <div class="step-card__body">
+          <h2>העתק את הפרומפט — הדבק בכל AI</h2>
+          <p>הפרומפט מבקש JSON תקני בלבד במבנה שהממשק יודע להפוך לדוח.</p>
+
+          <div class="prompt-box">
+            <textarea id="promptPreview" class="textarea textarea--code" rows="8" readonly></textarea>
+          </div>
+
+          <div class="inline-actions">
+            <button class="btn btn--primary" id="copyPromptBtn">📋 העתק פרומפט</button>
+            <button class="btn btn--soft" id="downloadPromptBtn">הורד כ-TXT</button>
+            <span class="copy-status" id="copyStatus" role="status"></span>
+          </div>
+
+          <div class="hint">
+            עכשיו: פתח Claude / ChatGPT / Gemini ← הדבק ← שלח ← העתק את כל תשובת ה-JSON ← חזור לשלב 3.
+          </div>
+        </div>
+      </section>
+
+      <section class="step-card">
+        <div class="step-card__num">3</div>
+        <div class="step-card__body">
+          <h2>הדבק את תשובת ה-AI ← לחץ “צור דוח”</h2>
+          <p>אפשר להדביק JSON נקי או JSON שנעטף בטעות ב־Markdown. הממשק ינסה לנקות אותו.</p>
+
+          <textarea id="jsonInput" class="textarea textarea--code" rows="12" placeholder='{"meta":{"project_name":"..."}}'></textarea>
+
+          <div class="inline-actions">
+            <button class="btn btn--primary" id="generateBtn">✅ צור דוח</button>
+            <button class="btn btn--soft" id="validateBtn">בדוק JSON</button>
+            <button class="btn btn--soft" id="loadJsonSampleBtn">טען JSON לדוגמה</button>
+            <span class="copy-status" id="jsonStatus" role="status"></span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <section id="reportPanel" class="report-panel" hidden>
+      <div class="toolbar">
+        <button class="btn btn--dark" id="newReportBtn">דוח חדש</button>
+        <button class="btn btn--dark" id="toggleEditBtn">עריכה</button>
+        <button class="btn btn--dark" id="printBtn">PDF</button>
+        <button class="btn btn--dark" id="saveHtmlBtn">שמור HTML</button>
+        <button class="btn btn--dark" id="saveJsonBtn">שמור JSON</button>
+      </div>
+      <div id="reportMount"></div>
+    </section>
+
+    <footer class="footer">
+      <p>פיתוח ועיצוב: ד"ר אסף אוזן</p>
+      <p>גרסה סטטית ל-GitHub Pages · ללא שרת · ללא תלות במודל שפה מסוים</p>
+    </footer>
   </div>
-  <div class="foot">פיתוח ועיצוב: <strong>ד"ר אסף אוזן</strong></div>
-</div>
 
-<!-- ══ REPORT ══ -->
-<div id="reportWrapper" style="display:none;position:fixed;inset:0;overflow-y:auto;background:linear-gradient(135deg,#667eea,#764ba2);z-index:100">
-  <div class="rpt-btns" style="position:fixed;top:16px;left:16px;z-index:999;display:flex;flex-direction:column;gap:8px">
-    <button onclick="goBack()" style="background:#95a5a6;color:white;border:none;padding:10px 18px;border-radius:20px;cursor:pointer;font-weight:700;font-size:.88em">🔄 דוח חדש</button>
-    <button onclick="window.print()" style="background:#e74c3c;color:white;border:none;padding:10px 18px;border-radius:20px;cursor:pointer;font-weight:700;font-size:.88em">📄 PDF</button>
-    <button onclick="saveHTML()" style="background:#8e44ad;color:white;border:none;padding:10px 18px;border-radius:20px;cursor:pointer;font-weight:700;font-size:.88em">💾 שמור</button>
-    <button onclick="toggleEdit()" id="editBtn" style="background:#3498db;color:white;border:none;padding:10px 18px;border-radius:20px;cursor:pointer;font-weight:700;font-size:.88em">🎨 עריכה</button>
-  </div>
-  <div style="max-width:1100px;margin:20px auto 40px;background:rgba(255,255,255,.98);border-radius:20px;box-shadow:0 25px 50px rgba(0,0,0,.2);overflow:hidden">
-    <div id="reportApp"></div>
-  </div>
-</div>
+  <script>
+window.EZRA_CONFIG = {
+  appName: "EZRA Generic",
+  version: "1.0.0",
+  defaultFilename: "risk-report",
+  severityLabels: {
+    "very-high": "חומרה גבוהה מאוד",
+    "high": "חומרה גבוהה",
+    "medium": "חומרה בינונית",
+    "low": "חומרה נמוכה"
+  },
+  statusLabels: {
+    "full": "מלא",
+    "partial": "חלקי",
+    "dev": "בפיתוח",
+    "improve": "דורש שיפור"
+  }
+};
 
-<script>
-/* ══ PROMPT ══ */
-const PROMPT=`אתה מומחה לניהול סיכונים במערכת החינוך הישראלית.
+  </script>
+  <script>
+window.EZRA_SAMPLE_JSON = {
+  "meta": {
+    "project_name": "פיילוט AI להתאמת תרגול אישי",
+    "subtitle": "דוח ניהול סיכונים פדגוגי ורגולטורי",
+    "responsible": "צוות פדגוגיה, תקשוב, פרטיות ואבטחת מידע",
+    "date": "1 ביוני 2026",
+    "organization": "מוסד חינוכי בפיקוח משרד החינוך",
+    "overview_cards": [
+      {
+        "icon": "👤",
+        "title": "אחראי פרויקט",
+        "content": "רכז/ת תקשוב, מוביל/ת פדגוגי/ת וממונה פרטיות מוסדי"
+      },
+      {
+        "icon": "🏢",
+        "title": "ארגון",
+        "content": "בית ספר או רשות המפעילים פיילוט AI חינוכי"
+      },
+      {
+        "icon": "🌍",
+        "title": "היקף הפרויקט",
+        "content": "כיתות נבחרות, מורים מובילים ותלמידים שהתקבלה לגביהם הסכמה מדעת"
+      },
+      {
+        "icon": "📅",
+        "title": "לוח זמנים",
+        "content": "פיילוט קצר, ניטור חודשי, הערכת ביניים והחלטת הרחבה או עצירה"
+      },
+      {
+        "icon": "🚀",
+        "title": "סוג החדשנות",
+        "content": "שימוש בכלי AI לתרגול מותאם אישית ולהמלצות פדגוגיות"
+      },
+      {
+        "icon": "📋",
+        "title": "סטטוס רגולטורי",
+        "content": "נדרשת בדיקת פרטיות, הסכמה, תיעוד כלי, הכשרת משתמשים ומנגנון עצירה"
+      }
+    ]
+  },
+  "goals": [
+    {
+      "title": "מטרה 1: שקיפות והסכמה מדעת",
+      "description": "להבטיח שכל שימוש בכלי AI יוסבר להורים, תלמידים וצוותים באופן ברור, כולל מטרת הכלי, סיכונים, תועלות וזכות סירוב."
+    },
+    {
+      "title": "מטרה 2: שמירת עצמאות שיקול הדעת הפדגוגי",
+      "description": "להבטיח שהמערכת תומכת בהחלטות מורה ולא מחליפה אותן, ושהצוות מבין את מגבלות ההמלצות."
+    },
+    {
+      "title": "מטרה 3: הגנת מידע וניטור ביצועים",
+      "description": "להבטיח איסוף מידע מינימלי, אבטחה, בדיקת הטיות, זיהוי שגיאות וקריטריונים לעצירה מוקדמת."
+    }
+  ],
+  "deliverables": [
+    {
+      "title": "טופס הסכמה ויידוע",
+      "description": "מסמך קצר להורים ולתלמידים על מטרת השימוש, הנתונים הנאספים, הסיכונים והחלופה."
+    },
+    {
+      "title": "כרטיס מערכת AI",
+      "description": "תיעוד גרסה, ייעוד, רמת אוטונומיה, קלטים, פלטים, מגבלות ואישורים."
+    },
+    {
+      "title": "דוח ניטור חודשי",
+      "description": "מעקב אחר ביצועים, שגיאות, הטיות, שביעות רצון ושלומות תלמידים."
+    }
+  ],
+  "risks": [
+    {
+      "title": "שימוש ללא שקיפות והסכמה מספקת",
+      "severity": "high",
+      "severity_label": "חומרה גבוהה",
+      "probability": 8,
+      "damage": 8,
+      "score": 64,
+      "description": "(נגזר ממטרה 1: שקיפות והסכמה מדעת) שימוש בכלי בלי יידוע ברור עלול לפגוע באמון ההורים והתלמידים.",
+      "impacts": [
+        "פגיעה באמון הציבור",
+        "חשש לפגיעה בזכות הבחירה",
+        "אי הבנה של תפקיד ה-AI"
+      ],
+      "opportunities": [
+        "יצירת טופס יידוע אחיד",
+        "חיזוק שקיפות פדגוגית"
+      ],
+      "source": "עקרונות גילוי מידע והסכמה מדעת"
+    },
+    {
+      "title": "הסתמכות יתר על המלצות AI",
+      "severity": "high",
+      "severity_label": "חומרה גבוהה",
+      "probability": 7,
+      "damage": 8,
+      "score": 56,
+      "description": "(נגזר ממטרה 2: שמירת עצמאות שיקול הדעת הפדגוגי) מורים עלולים לקבל המלצות מערכת בלי בקרה פדגוגית מספקת.",
+      "impacts": [
+        "החלשת שיקול דעת מורה",
+        "טעויות התאמה לתלמיד",
+        "העמקת פערים"
+      ],
+      "opportunities": [
+        "הכשרת מורים לזיהוי המלצות בעייתיות"
+      ],
+      "source": "עקרונות הכשרה, מאפייני פלט והסברתיות"
+    },
+    {
+      "title": "חשיפת מידע אישי של תלמידים",
+      "severity": "high",
+      "severity_label": "חומרה גבוהה",
+      "probability": 7,
+      "damage": 9,
+      "score": 63,
+      "description": "(נגזר ממטרה 3: הגנת מידע וניטור ביצועים) איסוף נתונים עודף או אינטגרציה לא מאובטחת עלולים לחשוף מידע אישי.",
+      "impacts": [
+        "פגיעה בפרטיות",
+        "דליפת נתונים",
+        "פגיעה באמון בית הספר"
+      ],
+      "opportunities": [
+        "מינימיזציית מידע והצפנה",
+        "בדיקת ממונה אבטחת מידע"
+      ],
+      "source": "עקרונות ממשל נתונים והגנת מידע וסייבר"
+    },
+    {
+      "title": "הטיות כלפי קבוצות תלמידים",
+      "severity": "medium",
+      "severity_label": "חומרה בינונית",
+      "probability": 6,
+      "damage": 7,
+      "score": 42,
+      "description": "(נגזר ממטרה 3: הגנת מידע וניטור ביצועים) מודל שאומן על נתונים לא מייצגים עלול לתת המלצות פחות מדויקות לקבוצות מסוימות.",
+      "impacts": [
+        "פגיעה בהוגנות",
+        "המלצות לא מותאמות",
+        "סימון שגוי של תלמידים"
+      ],
+      "opportunities": [
+        "בדיקה לפי תתי-קבוצות",
+        "שיפור מדדי הוגנות"
+      ],
+      "source": "עקרונות אימון מודל, קריטריוני הכללה ובחינת ביצועים"
+    }
+  ],
+  "strategies": [
+    {
+      "title": "אסטרטגיה 1: שער כניסה רגולטורי",
+      "description": "כל כלי יופעל רק לאחר בדיקת מוכנות הכוללת שקיפות, הסכמה, תיעוד כלי ופרטיות.",
+      "items": [
+        {
+          "title": "בדיקת מוכנות",
+          "description": "מילוי טופס הכולל מטרת שימוש, אוכלוסיית יעד, נתונים, סיכונים ותועלות.",
+          "badge": "לפני הפיילוט",
+          "badge_type": "timeline"
+        },
+        {
+          "title": "מדד הצלחה",
+          "description": "100% מהכלים עוברים אישור לפני כניסה לכיתה.",
+          "badge": "KPI",
+          "badge_type": "kpi"
+        }
+      ]
+    },
+    {
+      "title": "אסטרטגיה 2: הכשרת משתמשים וניטור",
+      "description": "הכשרה קצרה למורים ולתלמידים וניטור מתמשך של ביצועים, שגיאות והטיות.",
+      "items": [
+        {
+          "title": "סדנת מורים",
+          "description": "הבנת מגבלות המערכת ומצבים שבהם אין לקבל המלצת AI.",
+          "badge": "שבוע 0",
+          "badge_type": "timeline"
+        },
+        {
+          "title": "מדד הצלחה",
+          "description": "דוח ניטור חודשי לכל פיילוט פעיל.",
+          "badge": "KPI",
+          "badge_type": "kpi"
+        }
+      ]
+    }
+  ],
+  "innovation_regulation": {
+    "title": "אסדרת חדשנות AI חינוכית",
+    "description": "הפיילוט דורש איזון בין חדשנות פדגוגית לבין שקיפות, פרטיות, אחריותיות, הוגנות ושלומות תלמידים.",
+    "rri_statement": "עקרונות RRI מחייבים ציפייה מראש של סיכונים, הכללת בעלי עניין, רפלקסיביות ויכולת תגובה באמצעות תיקון או עצירה.",
+    "committee_recommendation": "לאשר פיילוט מוגבל בלבד לאחר השלמת תיעוד, הסכמה, בדיקת פרטיות, הכשרת משתמשים ומדדי ניטור."
+  },
+  "innovation": {
+    "score": 7.5,
+    "label": "חדשנות גבוהה ומבוקרת",
+    "description": "הפוטנציאל הפדגוגי גבוה, אך יש צורך בבקרה רגולטורית ברורה.",
+    "components": [
+      {
+        "score": 8,
+        "title": "השפעה פדגוגית",
+        "description": "התאמה אישית עשויה לשפר למידה ומשוב."
+      },
+      {
+        "score": 7,
+        "title": "מורכבות טכנולוגית",
+        "description": "הכלי דורש אינטגרציה, אבטחה והבנת מגבלות מודל."
+      },
+      {
+        "score": 8,
+        "title": "שינוי ארגוני",
+        "description": "נדרשים נוהלי עבודה חדשים והכשרת צוותים."
+      },
+      {
+        "score": 7,
+        "title": "סיכון טכנולוגי",
+        "description": "הסיכון ניתן לניהול באמצעות בקרה ואבטחת מידע."
+      }
+    ]
+  },
+  "regulation_table": [
+    {
+      "requirement": "גילוי מידע והסכמה מדעת",
+      "requirement_detail": "יידוע הורים ותלמידים על שימוש ב-AI, מטרות, סיכונים, תועלות וזכות סירוב.",
+      "status": "improve",
+      "status_label": "דורש שיפור",
+      "action": "להכין טופס הסכמה אחיד לפני הפעלה."
+    },
+    {
+      "requirement": "ממשל נתונים ופרטיות",
+      "requirement_detail": "איסוף מינימלי, הצפנה, הרשאות ואנונימיזציה.",
+      "status": "partial",
+      "status_label": "חלקי",
+      "action": "לבצע בדיקת פרטיות ואבטחת מידע לכל כלי."
+    },
+    {
+      "requirement": "ביצועים והטיות",
+      "requirement_detail": "בדיקת דיוק, הטיות ושגיאות לפי קבוצות תלמידים.",
+      "status": "dev",
+      "status_label": "בפיתוח",
+      "action": "להגדיר מדדי ביצוע ותנאי עצירה."
+    }
+  ],
+  "executive_summary": {
+    "cards": [
+      {
+        "title": "📊 רמת חדשנות",
+        "content": "7.5/10: חדשנות גבוהה המחייבת אסדרה מדורגת."
+      },
+      {
+        "title": "🔐 הסיכון הגדול",
+        "content": "חשיפת מידע אישי והסתמכות יתר על המלצות AI."
+      },
+      {
+        "title": "⚠️ רמת סיכון כוללת",
+        "content": "גבוהה, אך ניתנת לניהול באמצעות שקיפות, הכשרה, ניטור ואבטחת מידע."
+      }
+    ],
+    "recommendations": [
+      {
+        "title": "למטרה 1: להבטיח הסכמה ושקיפות",
+        "description": "להשתמש בטופס יידוע והסכמה פשוט וברור לכל פיילוט."
+      },
+      {
+        "title": "למטרה 2: לשמור על שיקול דעת המורה",
+        "description": "לקבוע שהמלצות AI הן תומכות החלטה בלבד."
+      },
+      {
+        "title": "למטרה 3: להפעיל ניטור ועצירה",
+        "description": "להגדיר מדדי ביצוע, זיהוי שגיאות ותנאים להפסקת שימוש."
+      }
+    ],
+    "footer_note": "צעדים מיידיים: מינוי אחראי פיילוט, בדיקת כלי, כתיבת טופס הסכמה, הכשרת מורים והפעלת ניסוי קטן."
+  },
+  "footer": {
+    "main": "דוח ניהול סיכונים ליישום AI חינוכי",
+    "sources": "מבוסס על: עקרונות לבחינת יישומי AI בחינוך | עקרונות RRI | הגנת פרטיות | אסדרת חדשנות",
+    "credit": "ד״ר אסף אוזן"
+  }
+};
+  </script>
+  <script>
+function buildRiskReportPrompt(conceptText) {
+  const schema = `{
+  "meta": {
+    "project_name": "",
+    "subtitle": "",
+    "responsible": "",
+    "date": "",
+    "organization": "",
+    "overview_cards": [
+      {"icon":"👤","title":"אחראי פרויקט","content":""},
+      {"icon":"🏢","title":"ארגון","content":""},
+      {"icon":"🌍","title":"היקף הפרויקט","content":""},
+      {"icon":"📅","title":"לוח זמנים","content":""},
+      {"icon":"🚀","title":"סוג החדשנות","content":""},
+      {"icon":"📋","title":"סטטוס רגולטורי","content":""}
+    ]
+  },
+  "goals": [
+    {"title":"מטרה 1: שם","description":"פירוט"},
+    {"title":"מטרה 2: שם","description":"פירוט"},
+    {"title":"מטרה 3: שם","description":"פירוט"}
+  ],
+  "deliverables": [
+    {"title":"תוצר 1","description":""},
+    {"title":"תוצר 2","description":""},
+    {"title":"תוצר 3","description":""}
+  ],
+  "risks": [
+    {
+      "title":"",
+      "severity":"high",
+      "severity_label":"חומרה גבוהה",
+      "probability":8,
+      "damage":8,
+      "score":64,
+      "description":"(נגזר ממטרה 1: שם)",
+      "impacts":["",""],
+      "opportunities":[""],
+      "source":"ציטוט/שם מקור רגולטורי רלוונטי"
+    }
+  ],
+  "strategies": [
+    {
+      "title":"אסטרטגיה 1",
+      "description":"",
+      "items":[
+        {"title":"","description":"","badge":"","badge_type":"timeline"},
+        {"title":"מדד הצלחה","description":"","badge":"KPI","badge_type":"kpi"}
+      ]
+    }
+  ],
+  "innovation_regulation": {
+    "title":"",
+    "description":"",
+    "rri_statement":"",
+    "committee_recommendation":""
+  },
+  "innovation": {
+    "score":7.0,
+    "label":"",
+    "description":"",
+    "components":[
+      {"score":6,"title":"השפעה פדגוגית","description":""},
+      {"score":7,"title":"מורכבות טכנולוגית","description":""},
+      {"score":7,"title":"שינוי ארגוני","description":""},
+      {"score":8,"title":"סיכון טכנולוגי","description":""}
+    ]
+  },
+  "regulation_table": [
+    {"requirement":"","requirement_detail":"","status":"dev","status_label":"בפיתוח","action":""}
+  ],
+  "executive_summary": {
+    "cards": [
+      {"title":"📊 רמת חדשנות","content":""},
+      {"title":"🔐 הסיכון הגדול","content":""},
+      {"title":"⚠️ רמת סיכון כוללת","content":""}
+    ],
+    "recommendations": [
+      {"title":"המלצה 1","description":""},
+      {"title":"המלצה 2","description":""},
+      {"title":"המלצה 3","description":""}
+    ],
+    "footer_note":""
+  },
+  "footer": {
+    "main":"",
+    "sources":"מבוסס על: חוזר מנכ״ל לאסדרת חדשנות | עקרונות RRI | חוק לימוד חובה",
+    "credit":"ד״ר אסף אוזן"
+  }
+}`;
 
-קרא את מסמך התפיסה המצורף וצור JSON בלבד — ללא הסברים, ללא טקסט נוסף, ללא markdown. רק JSON תקני.
+  return `אתה מומחה לניהול סיכונים במערכת החינוך הישראלית.
+
+קרא את מסמך התפיסה המצורף וצור JSON בלבד.
+אין להחזיר הסברים, אין markdown, אין טקסט לפני או אחרי ה-JSON.
+החזר JSON תקני בלבד.
 
 כללים מחייבים:
-- התמקד בהיבטים פדגוגיים ורגולטוריים בלבד
-- אל תזכיר נתונים כלכליים מספריים (תקציבים, עלויות)
-- זהה בדיוק 3 מטרות מרכזיות מהמסמך
-- גזור 4–5 סיכונים ישירות מהמטרות
-- כל סיכון: חומרה = הסתברות (1–10) × נזק (1–10)
-- רמות: גבוהה מאוד (81–100), גבוהה (49–80), בינונית (25–48), נמוכה (1–24)
-- ציין בכל סיכון לאיזו מטרה הוא קשור
-- המלצות קונקרטיות — מענה לכל אחת מ-3 המטרות
-- ציון חדשנות = ממוצע 4 רכיבים (1–10)
-- לכל סיכון הוסף שדה source עם ציטוט המקור הרגולטורי הרלוונטי
+- התמקד בהיבטים פדגוגיים ורגולטוריים בלבד.
+- אל תזכיר נתונים כספיים מספריים, תקציבים או עלויות.
+- זהה בדיוק 3 מטרות מרכזיות מהמסמך.
+- גזור 4 עד 5 סיכונים ישירות מהמטרות.
+- כל סיכון חייב להיות קשור למטרה ספציפית.
+- חומרת סיכון = הסתברות 1-10 כפול נזק 1-10.
+- רמות חומרה:
+  very-high = 81-100
+  high = 49-80
+  medium = 25-48
+  low = 1-24
+- לכל סיכון הוסף source עם מקור רגולטורי רלוונטי.
+- צור המלצות קונקרטיות, לפחות המלצה אחת לכל אחת משלוש המטרות.
+- ציון חדשנות = ממוצע ארבעת הרכיבים בתחום innovation.components.
+- ערכים מותרים לשדה status: full / partial / dev / improve.
+- ערכים מותרים לשדה severity: very-high / high / medium / low.
+- שמור על המבנה הבא בדיוק, עם מילוי תוכן מתאים:
 
-צור JSON במבנה הזה בדיוק:
-{"meta":{"project_name":"","subtitle":"","responsible":"","date":"","organization":"","overview_cards":[{"icon":"👤","title":"אחראי פרויקט","content":""},{"icon":"🏢","title":"ארגון","content":""},{"icon":"🌍","title":"היקף הפרויקט","content":""},{"icon":"📅","title":"לוח זמנים","content":""},{"icon":"🚀","title":"סוג החדשנות","content":""},{"icon":"📋","title":"סטטוס רגולטורי","content":""}]},"goals":[{"title":"מטרה 1: שם","description":"פירוט"},{"title":"מטרה 2: שם","description":"פירוט"},{"title":"מטרה 3: שם","description":"פירוט"}],"deliverables":[{"title":"תוצר 1","description":""},{"title":"תוצר 2","description":""}],"risks":[{"title":"","severity":"very-high","severity_label":"חומרה גבוהה מאוד","probability":9,"damage":9,"score":81,"description":"(נגזר ממטרה 1: שם)","impacts":["",""],"opportunities":[""],"source":"חוזר מנכ\"ל לאסדרת חדשנות"}],"strategies":[{"title":"אסטרטגיה 1","description":"","items":[{"title":"","description":"","badge":"","badge_type":"timeline"},{"title":"מדד הצלחה","description":"","badge":"KPI","badge_type":"kpi"}]}],"innovation_regulation":{"title":"","description":"","rri_statement":"","committee_recommendation":""},"innovation":{"score":7.0,"label":"","description":"","components":[{"score":6,"title":"השפעה פדגוגית","description":""},{"score":7,"title":"מורכבות טכנולוגית","description":""},{"score":7,"title":"שינוי ארגוני","description":""},{"score":8,"title":"סיכון טכנולוגי","description":""}]},"regulation_table":[{"requirement":"","requirement_detail":"","status":"dev","status_label":"בפיתוח","action":""}],"executive_summary":{"cards":[{"title":"📊 רמת חדשנות","content":""},{"title":"🔐 הסיכון הגדול","content":""},{"title":"⚠️ רמת סיכון כוללת","content":""}],"recommendations":[{"title":"המלצה 1","description":""},{"title":"המלצה 2","description":""},{"title":"המלצה 3","description":""}],"footer_note":""},"footer":{"main":"","sources":"מבוסס על: חוזר מנכ\\"ל לאסדרת חדשנות | עקרונות RRI | חוק לימוד חובה","credit":"ד\\"ר אסף אוזן"}}
+${schema}
 
-ערכים לשדה status: full/partial/dev/improve
-ערכים לשדה severity: very-high/high/medium/low
-
-כעת נתח את מסמך התפיסה הבא וצא JSON בלבד:
-
-`;
-
-/* ══ DEMO DATA ══ */
-const DEMO={"meta":{"project_name":"מרכזי כשירויות STEM רשותיים","subtitle":"תשתית STEM רשותית","responsible":"משרד החינוך והרשות המקומית","date":"אפריל 2026","organization":"משרד החינוך ורשויות מקומיות","overview_cards":[{"icon":"👤","title":"אחראי פרויקט","content":"משרד החינוך והרשות המקומית — אחריות משותפת להפעלה, פיקוח והטמעה"},{"icon":"🏢","title":"ארגון","content":"משרד החינוך, רשויות מקומיות, בתי ספר, שותפי אקדמיה, תעשייה וקהילה"},{"icon":"🌍","title":"היקף הפרויקט","content":"תלמידים, צוותי חינוך, קהילה ושותפים; מודל רשותי או אזורי"},{"icon":"📅","title":"לוח זמנים","content":"גיבוש צורך וחזון, מיפוי שותפים, תכנון פדגוגי, גיוס צוות, הפעלה מדורגת"},{"icon":"🚀","title":"סוג החדשנות","content":"מרכז למידה היברידי, רב-תחומי, מבוסס חקר ועשייה"},{"icon":"📋","title":"סטטוס רגולטורי","content":"נדרש מסלול אסדרה ייעודי הכולל סטנדרט מינימום ופיקוח פדגוגי"}]},"goals":[{"title":"מטרה 1: פיתוח כשירויות STEM לתלמידים","description":"פיתוח כשירויות מדעיות, טכנולוגיות, הנדסיות ומתמטיות באמצעות למידה פעילה, חקר ופתרון בעיות."},{"title":"מטרה 2: חיזוק צוותי חינוך","description":"יצירת מרחב התנסות ופיתוח מקצועי לצוותי חינוך, קידום הוראה בין-תחומית."},{"title":"מטרה 3: בניית אקוסיסטם רשותי נגיש","description":"חיבור בין חינוך פורמלי, בלתי פורמלי וקהילתי, צמצום חסמים מגדריים וחברתיים."}],"deliverables":[{"title":"תפיסה ושפה משותפת","description":"הגדרה מוסכמת של מרכז STEM רשותי ועקרונות הפעולה הפדגוגיים."},{"title":"מודל הפעלה פדגוגי-רשותי","description":"מסגרת פעולה המחברת תלמידים, מורים, רשות וקהילה."},{"title":"מערכת מדידה ושיפור מתמיד","description":"כלי מעקב אחר השתתפות, איכות למידה ויישום בבתי הספר."}],"risks":[{"title":"פער בין חזון פדגוגי ליישום בפועל","severity":"high","severity_label":"חומרה גבוהה","probability":8,"damage":9,"score":72,"description":"מרכזים עלולים להצהיר על חדשנות אך לפעול כאוסף פעילויות נקודתיות ללא סטנדרט ופיקוח (נגזר ממטרה 1: פיתוח כשירויות STEM).","impacts":["פיתוח חלקי של כשירויות STEM","קושי להוכיח השפעה פדגוגית","שונות גבוהה באיכות בין מרכזים"],"opportunities":["יצירת תו תקן פדגוגי למרכזי STEM","בניית תיק פרקטיקות משותף לכלל המרכזים"],"source":"חוזר מנכ\"ל לאסדרת חדשנות | סטנדרט פדגוגי"},{"title":"חוסר רצף בין המרכז לבתי הספר","severity":"high","severity_label":"חומרה גבוהה","probability":8,"damage":8,"score":64,"description":"פעילות המרכז עלולה להישאר מנותקת מתוכניות הלימודים ומסלולי ההמשך (נגזר ממטרה 3: אקוסיסטם רשותי).","impacts":["כפילויות בין פעילויות המרכז לבית הספר","פגיעה ברצף ההתפתחות של הלומדים"],"opportunities":["הקמת מנגנון תיאום רשותי עם בתי הספר","פיתוח מסלולים רב-שנתיים לפי שכבות גיל"],"source":"חוזר מנכ\"ל: ארגון הלמידה בחינוך העל-יסודי תשפ\"ו"},{"title":"הכשרת צוות בלתי מספקת","severity":"high","severity_label":"חומרה גבוהה","probability":7,"damage":8,"score":56,"description":"ללא מודל הכשרה, הטכנולוגיות לא יהפכו לפרקטיקה פדגוגית איכותית (נגזר ממטרה 2: חיזוק צוותי חינוך).","impacts":["שימוש טכני ולא פדגוגי בציוד","פערי איכות בין מדריכים ומורים"],"opportunities":["בניית מסלול פיתוח מקצועי ייעודי","יצירת קהילת למידה רשותית"],"source":"פיתוח מקצועי – פורטל עובדי הוראה | אופק חדש"},{"title":"אי-הוגנות בנגישות ובהשתתפות","severity":"high","severity_label":"חומרה גבוהה","probability":7,"damage":9,"score":63,"description":"המרכז עלול לשרת בעיקר תלמידים חזקים במקום להרחיב הזדמנויות (נגזר ממטרה 3: אקוסיסטם רשותי).","impacts":["העמקת פערי השתתפות ב-STEM","החמצת אוכלוסיות שאינן מזוהות עם מדע"],"opportunities":["קביעת מדדי נגישות והשתתפות מגוונת","פיתוח מסלולי כניסה פתוחים"],"source":"חוק לימוד חובה, תש\"ט–1949 | חוק חינוך ממלכתי, 1953"},{"title":"שותפויות חיצוניות ללא גבולות רגולטוריים","severity":"medium","severity_label":"חומרה בינונית","probability":6,"damage":8,"score":48,"description":"מעורבות תעשייה ואקדמיה עלולה ליצור השפעה לא מבוקרת על תוכן (נגזר ממטרה 3: אקוסיסטם רשותי).","impacts":["טשטוש אחריות פדגוגית","חשש להטיות בתכנים"],"opportunities":["הסכמי שותפות מחייבים עם גבולות פדגוגיים"],"source":"חדשנות אחראית ושימוש בכלי בינה מלאכותית בחינוך (2025)"}],"strategies":[{"title":"אסטרטגיה 1 — סטנדרט פדגוגי ותו תקן","description":"הגדרת ליבה מחייבת למרכזי STEM, לצד התאמה מקומית גמישה לכל רשות.","items":[{"title":"גיבוש מסמך סטנדרט","description":"הגדרת דרישות מינימום לתוכן, בטיחות, נגישות, הכשרה ומדידה.","badge":"לפני הפעלה","badge_type":"timeline"},{"title":"אישור תוכנית מרכז","description":"כל מרכז יגיש תוכנית שנתית הכוללת מסלולי למידה ומדדי הצלחה.","badge":"תנאי להפעלה","badge_type":"timeline"},{"title":"מדד הצלחה","description":"כל מרכז מציג תיק פעילויות מאושר ומנגנון משוב תקופתי.","badge":"KPI","badge_type":"kpi"}]},{"title":"אסטרטגיה 2 — רצף למידה ותיאום עם בתי הספר","description":"יצירת מנגנון קבוע המחבר את המרכז לתוכניות הלימודים ולמסלולי המשך.","items":[{"title":"מיפוי שכבות ותוכניות","description":"מיפוי שכבות הגיל, תחומי הדעת ומסלולי ההמשך בבתי הספר.","badge":"שלב תכנון","badge_type":"timeline"},{"title":"ועדת תיאום פדגוגית","description":"ועדה הכוללת נציגי רשות, מנהלים, מורים וצוות המרכז — רבעונית.","badge":"רבעוני","badge_type":"timeline"},{"title":"מדד הצלחה","description":"לכל שכבת גיל מוגדר מסלול למידה מצטבר המחובר לתחום דעת.","badge":"KPI","badge_type":"kpi"}]}],"innovation_regulation":{"title":"הגדרת רמת החדשנות — מרכז STEM רשותי","description":"החדשנות היא שילוב בין מרחב פיזי, פדגוגיה רב-תחומית, טכנולוגיות מתקדמות ושותפויות. החדשנות אינה בציוד בלבד אלא במודל החיבור בין למידה, קהילה, מורים, תעשייה ואקדמיה.","rri_statement":"עקרונות RRI: שלומות — הטכנולוגיה משרתת למידה; שקיפות — שותפויות מפוקחות; אחריותיות — ועדת היגוי רשותית; מידתיות — היקף מוגדר ומבוקר.","committee_recommendation":"מומלץ לאשר בתנאי שיוגדרו סטנדרט מינימום, מנגנון פיקוח פדגוגי, הכשרת צוות, מדיניות נגישות, הסכמי שותפות מחייבים ומערכת מדידה לפני הרחבה."},"innovation":{"score":7.0,"label":"חדשנות בינונית-גבוהה","description":"השפעה פדגוגית גבוהה ושינוי ארגוני משמעותי, לצד מורכבות רגולטורית וצורך בפיקוח.","components":[{"score":8,"title":"השפעה פדגוגית","description":"המרכז משנה למידה מבודדת ללמידה רב-תחומית, התנסותית ומבוססת בעיות."},{"score":7,"title":"מורכבות טכנולוגית","description":"ציוד, סביבות דיגיטליות, בינה מלאכותית ורובוטיקה — טכנולוגיה כאמצעי פדגוגי."},{"score":7,"title":"שינוי ארגוני","description":"תיאום בין משרד החינוך, רשות, בתי ספר, צוותי מרכז, קהילה ושותפים."},{"score":6,"title":"סיכון טכנולוגי","description":"הסיכון ניתן לניהול עם גבולות שימוש, פיקוח פדגוגי ומנגנון עדכון."}]},"regulation_table":[{"requirement":"סטנדרט מינימום למרכז STEM","requirement_detail":"דרישות בסיס למרחב, ציוד, כוח אדם, תוכנית עבודה ובטיחות.","status":"dev","status_label":"בפיתוח","action":"משרד החינוך יגבש מסמך סטנדרט מחייב לפני אישור הפעלה."},{"requirement":"פיקוח פדגוגי על תוכניות","requirement_detail":"אישור תוכניות למידה, התאמה לגיל וחיבור לתוכניות הלימודים.","status":"partial","status_label":"עמידה חלקית","action":"להקים ועדת תיאום פדגוגית רשותית שתאשר תוכנית שנתית."},{"requirement":"הכשרת צוות וליווי מקצועי","requirement_detail":"הכשרה מחייבת למדריכים ומורים בחקר, פרויקטים ובטיחות.","status":"improve","status_label":"דורש שיפור","action":"הגדרת מסלול הכשרה ותיעוד השתתפות לכל בעל תפקיד."},{"requirement":"נגישות והוגנות","requirement_detail":"השתתפות מגוונת, מסלולים פתוחים ושקיפות בתהליכי קבלה.","status":"dev","status_label":"בפיתוח","action":"הרשות תפרסם מדיניות השתתפות ותעקוב אחר ייצוג אוכלוסיות."},{"requirement":"הסדרת שותפויות חיצוניות","requirement_detail":"גבולות אחריות לתעשייה, אקדמיה ויזמים.","status":"dev","status_label":"בפיתוח","action":"כל שותף יחתום על הסכם פדגוגי-רגולטורי לפני כניסה לפעילות."}],"executive_summary":{"cards":[{"title":"📊 רמת חדשנות","content":"7/10 — חדשנות בינונית-גבוהה הנשענת על פדגוגיה רב-תחומית ושותפויות"},{"title":"🔐 הסיכון הגדול","content":"פער בין חזון פדגוגי ליישום — ציון 72 — פתרון: תו תקן, מדידה ופיקוח"},{"title":"⚠️ רמת סיכון כוללת","content":"4 סיכונים גבוהים, 1 בינוני — ניתן למיתון עם סטנדרט ומנגנוני פיקוח"}],"recommendations":[{"title":"המלצה 1 — למטרה 1: כשירויות STEM","description":"לאשר פעילות תלמידים רק אם כוללת תוצר, בעיה אותנטית, עבודת צוות ומדד למידה ברור."},{"title":"המלצה 2 — למטרה 2: חיזוק צוותים","description":"להפעיל מסלול הכשרה מחייב למדריכים ומורים, כולל קהילת למידה ופיתוח יחידות הוראה."},{"title":"המלצה 3 — למטרה 3: אקוסיסטם רשותי","description":"להקים ועדת היגוי רשותית שתנהל רצף בין בתי הספר, המרכז, הקהילה והשותפים."}],"footer_note":"צעדים מיידיים: (1) גיבוש סטנדרט מינימום פדגוגי | (2) מינוי ועדת תיאום רשותית | (3) בניית מערכת מדידה ונגישות"},"footer":{"main":"דוח ניהול סיכונים — מרכזי STEM רשותיים | משרד החינוך | אפריל 2026","sources":"מבוסס על: חוזר מנכ\"ל לאסדרת חדשנות | עקרונות RRI | חוק לימוד חובה | אופק חדש","credit":"ד\"ר אסף אוזן"}};
-
-/* ══ INTERACTIONS ══ */
-function readFile(input){
-  const file=input.files[0]; if(!file) return;
-  const r=new FileReader();
-  r.onload=e=>{
-    document.getElementById('docText').value=e.target.result;
-    document.getElementById('flbl').textContent=file.name;
-    document.getElementById('uploadBox').classList.add('filled');
-  };
-  r.readAsText(file,'UTF-8');
+מסמך התפיסה לניתוח:
+""" 
+${conceptText || "[הדבק כאן את מסמך התפיסה]"}
+"""`;
 }
-document.getElementById('docText').addEventListener('input',function(){
-  document.getElementById('uploadBox').classList.toggle('filled',this.value.trim().length>10);
-});
-document.getElementById('aiRes').addEventListener('input',function(){
-  this.classList.toggle('filled',this.value.trim().length>10);
-  document.getElementById('errBox').style.display='none';
-});
 
-function copyPrompt(){
-  const doc=document.getElementById('docText').value.trim();
-  const full=PROMPT+(doc||'[הדבק כאן את מסמך התפיסה]');
-  const copy=t=>navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject();
-  copy(full).catch(()=>{
-    const el=document.createElement('textarea');
-    el.value=full;el.style.cssText='position:fixed;opacity:0';
-    document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);
-  }).finally(()=>{
-    const btn=document.getElementById('copyBtn');
-    btn.textContent='✅  הועתק — עבור ל-AI';
-    btn.classList.add('done');
-    document.getElementById('okBox').classList.add('show');
-    document.getElementById('step3').classList.add('show');
-    setTimeout(()=>{btn.textContent='📋  העתק פרומפט שוב';btn.classList.remove('done');},4000);
+  </script>
+  <script>
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function severityClass(severity) {
+  return ["very-high", "high", "medium", "low"].includes(severity) ? severity : "medium";
+}
+
+function statusClass(status) {
+  return ["full", "partial", "dev", "improve"].includes(status) ? status : "dev";
+}
+
+function countRisks(risks) {
+  const counts = {"very-high":0, high:0, medium:0, low:0};
+  for (const risk of asArray(risks)) {
+    const key = severityClass(risk.severity);
+    counts[key]++;
+  }
+  return counts;
+}
+
+function renderReport(data) {
+  const meta = data.meta || {};
+  const counts = countRisks(data.risks);
+  const projectName = meta.project_name || "דוח ניהול סיכונים";
+  const subtitle = meta.subtitle || "";
+  const responsible = meta.responsible || "";
+  const date = meta.date || "";
+
+  return `
+    <article class="report" id="generatedReport">
+      <header class="report__header">
+        <h2 class="editable">⚠️ דוח ניהול סיכונים</h2>
+        <p class="editable">${escapeHtml(projectName)}${subtitle ? " — " + escapeHtml(subtitle) : ""}</p>
+        <div class="report__meta editable">אחראי: ${escapeHtml(responsible)}${date ? " • " + escapeHtml(date) : ""}</div>
+      </header>
+
+      <section class="report-section">
+        <div class="report-section__title editable">📋 הגדרת הפרויקט</div>
+        <div class="grid">
+          ${renderOverviewCards(meta.overview_cards)}
+        </div>
+      </section>
+
+      <section class="report-section">
+        <div class="report-section__title editable">🎯 מטרות ותוצרים</div>
+        ${asArray(data.goals).map(goal => `
+          <div class="goal-card editable">
+            <h3>${escapeHtml(goal.title)}</h3>
+            <p>${escapeHtml(goal.description)}</p>
+          </div>
+        `).join("")}
+        <div class="grid">
+          ${asArray(data.deliverables).map(item => `
+            <div class="deliverable-card editable">
+              <h3>${escapeHtml(item.title)}</h3>
+              <p>${escapeHtml(item.description)}</p>
+            </div>
+          `).join("")}
+        </div>
+      </section>
+
+      <section class="report-section">
+        <div class="report-section__title editable">⚠️ מפת סיכונים</div>
+        <div class="risk-summary">
+          <div class="sum-card"><strong class="c-vh editable">${counts["very-high"]}</strong><span>גבוהה מאוד</span></div>
+          <div class="sum-card"><strong class="c-h editable">${counts.high}</strong><span>גבוהה</span></div>
+          <div class="sum-card"><strong class="c-m editable">${counts.medium}</strong><span>בינונית</span></div>
+          <div class="sum-card"><strong class="c-l editable">${counts.low}</strong><span>נמוכה</span></div>
+        </div>
+        <div class="risks-grid">
+          ${asArray(data.risks).map(renderRisk).join("")}
+        </div>
+      </section>
+
+      <section class="report-section">
+        <div class="report-section__title editable">📈 תוכנית התמודדות</div>
+        ${asArray(data.strategies).map(renderStrategy).join("")}
+      </section>
+
+      <section class="report-section">
+        <div class="report-section__title editable">🚀 אסדרת חדשנות</div>
+        ${renderInnovationRegulation(data.innovation_regulation)}
+      </section>
+
+      <section class="report-section">
+        <div class="report-section__title editable">📊 רמת החדשנות</div>
+        ${renderInnovation(data.innovation)}
+      </section>
+
+      <section class="report-section">
+        <div class="report-section__title editable">✅ התאמה לדרישות אסדרה</div>
+        ${renderRegulationTable(data.regulation_table)}
+      </section>
+
+      <section class="report-section exec-section">
+        <div class="report-section__title editable">📝 סיכום מנהלים והמלצות</div>
+        ${renderExecutiveSummary(data.executive_summary)}
+      </section>
+
+      <footer class="footer">
+        <p class="editable">${escapeHtml(data.footer?.main || "דוח ניהול סיכונים")}</p>
+        <p class="editable">${escapeHtml(data.footer?.sources || "")}</p>
+        <p><strong class="editable">${escapeHtml(data.footer?.credit || "")}</strong></p>
+      </footer>
+    </article>
+  `;
+}
+
+function renderOverviewCards(cards) {
+  const fallback = [
+    {icon:"👤", title:"אחראי פרויקט", content:""},
+    {icon:"🏢", title:"ארגון", content:""},
+    {icon:"🌍", title:"היקף הפרויקט", content:""},
+    {icon:"📅", title:"לוח זמנים", content:""},
+    {icon:"🚀", title:"סוג החדשנות", content:""},
+    {icon:"📋", title:"סטטוס רגולטורי", content:""}
+  ];
+  return asArray(cards).length ? asArray(cards).map(card => `
+    <div class="info-card editable">
+      <h3>${escapeHtml(card.icon || "")} ${escapeHtml(card.title)}</h3>
+      <p>${escapeHtml(card.content)}</p>
+    </div>
+  `).join("") : fallback.map(card => `
+    <div class="info-card editable">
+      <h3>${escapeHtml(card.icon)} ${escapeHtml(card.title)}</h3>
+      <p></p>
+    </div>
+  `).join("");
+}
+
+function renderRisk(risk) {
+  const sev = severityClass(risk.severity);
+  return `
+    <div class="risk-card risk-card--${sev}">
+      <div class="risk-card__head">
+        <h3 class="editable">${escapeHtml(risk.title)}</h3>
+        <span class="severity severity--${sev} editable">${escapeHtml(risk.severity_label || window.EZRA_CONFIG.severityLabels[sev])}</span>
+      </div>
+      <p class="tiny editable">${escapeHtml(risk.description || "")}</p>
+      <div class="metric-row">
+        <div class="metric"><strong class="editable">${escapeHtml(risk.probability)}</strong><span>הסתברות</span></div>
+        <div class="metric"><strong class="editable">${escapeHtml(risk.damage)}</strong><span>נזק</span></div>
+        <div class="metric"><strong class="editable">${escapeHtml(risk.score)}</strong><span>חומרה</span></div>
+      </div>
+      ${risk.description ? `<div class="desc editable">${escapeHtml(risk.description)}</div>` : ""}
+      <strong>השלכות:</strong>
+      <ul class="clean-list">
+        ${asArray(risk.impacts).map(item => `<li class="editable">⚠️ ${escapeHtml(item)}</li>`).join("")}
+      </ul>
+      <strong>הזדמנויות:</strong>
+      <ul class="clean-list">
+        ${asArray(risk.opportunities).map(item => `<li class="editable">✅ ${escapeHtml(item)}</li>`).join("")}
+      </ul>
+      ${risk.source ? `<div class="source-box editable"><strong>מקור רגולטורי:</strong> ${escapeHtml(risk.source)}</div>` : ""}
+    </div>
+  `;
+}
+
+function renderStrategy(strategy) {
+  return `
+    <div class="strategy-card">
+      <h3 class="editable">${escapeHtml(strategy.title)}</h3>
+      <div class="strategy-card__body">
+        <p class="editable">${escapeHtml(strategy.description)}</p>
+        <div class="strategy-items">
+          ${asArray(strategy.items).map(item => `
+            <div class="strategy-item editable">
+              <h4>${escapeHtml(item.title)}</h4>
+              <p>${escapeHtml(item.description)}</p>
+              ${item.badge ? `<span class="pill ${item.badge_type === "kpi" ? "pill--kpi" : ""}">${escapeHtml(item.badge)}</span>` : ""}
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderInnovationRegulation(reg) {
+  if (!reg) return "";
+  return `
+    <div class="goal-card editable">
+      <h3>${escapeHtml(reg.title)}</h3>
+      <p>${escapeHtml(reg.description)}</p>
+      <p>${escapeHtml(reg.rri_statement)}</p>
+      <p><strong>המלצת ועדה:</strong> ${escapeHtml(reg.committee_recommendation)}</p>
+    </div>
+  `;
+}
+
+function renderInnovation(innovation) {
+  if (!innovation) return "";
+  return `
+    <div class="innovation-box">
+      <h3 class="editable">ציון חדשנות כולל</h3>
+      <div class="innovation-score editable">${escapeHtml(innovation.score)}</div>
+      <p class="editable">/ 10 — ${escapeHtml(innovation.label)}</p>
+      <p class="editable">${escapeHtml(innovation.description)}</p>
+      <div class="grid" style="margin-top:18px">
+        ${asArray(innovation.components).map(component => `
+          <div class="component-card editable">
+            <strong>${escapeHtml(component.score)}</strong>
+            <h4>${escapeHtml(component.title)}</h4>
+            <p>${escapeHtml(component.description)}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderRegulationTable(rows) {
+  return `
+    <table class="reg-table">
+      <thead>
+        <tr><th>דרישת אסדרה</th><th>סטטוס</th><th>פעולה נדרשת</th></tr>
+      </thead>
+      <tbody>
+        ${asArray(rows).map(row => {
+          const status = statusClass(row.status);
+          return `
+            <tr>
+              <td class="editable"><strong>${escapeHtml(row.requirement)}</strong><br><small>${escapeHtml(row.requirement_detail)}</small></td>
+              <td><span class="status status--${status} editable">${escapeHtml(row.status_label || window.EZRA_CONFIG.statusLabels[status])}</span></td>
+              <td class="editable">${escapeHtml(row.action)}</td>
+            </tr>
+          `;
+        }).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderExecutiveSummary(summary) {
+  if (!summary) return "";
+  return `
+    <div class="grid">
+      ${asArray(summary.cards).map(card => `
+        <div class="exec-card editable">
+          <h3>${escapeHtml(card.title)}</h3>
+          <p>${escapeHtml(card.content)}</p>
+        </div>
+      `).join("")}
+    </div>
+    <div class="strategy-card" style="margin-top:18px">
+      <h3 class="editable">💡 המלצות מרכזיות</h3>
+      <div class="strategy-card__body">
+        ${asArray(summary.recommendations).map((rec, index) => `
+          <div class="goal-card editable">
+            <h3>${index + 1}. ${escapeHtml(rec.title)}</h3>
+            <p>${escapeHtml(rec.description)}</p>
+          </div>
+        `).join("")}
+        <p class="editable">${escapeHtml(summary.footer_note)}</p>
+      </div>
+    </div>
+  `;
+}
+
+  </script>
+  <script>
+let currentReportData = null;
+let editMode = false;
+
+const els = {
+  conceptFile: document.getElementById("conceptFile"),
+  conceptInput: document.getElementById("conceptInput"),
+  conceptStats: document.getElementById("conceptStats"),
+  promptPreview: document.getElementById("promptPreview"),
+  jsonInput: document.getElementById("jsonInput"),
+  copyStatus: document.getElementById("copyStatus"),
+  jsonStatus: document.getElementById("jsonStatus"),
+  reportPanel: document.getElementById("reportPanel"),
+  reportMount: document.getElementById("reportMount")
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  updatePrompt();
+
+  document.getElementById("scrollToBuilderBtn").addEventListener("click", () => {
+    document.getElementById("builder").scrollIntoView({behavior:"smooth"});
   });
+
+  document.getElementById("loadSampleBtn").addEventListener("click", async () => {
+    const data = await fetchJson("examples/sample-response.json");
+    loadReport(data);
+  });
+
+  document.getElementById("loadJsonSampleBtn").addEventListener("click", async () => {
+    const data = await fetchJson("examples/sample-response.json");
+    els.jsonInput.value = JSON.stringify(data, null, 2);
+    setStatus(els.jsonStatus, "נטען JSON לדוגמה");
+  });
+
+  els.conceptInput.addEventListener("input", updatePrompt);
+  els.conceptFile.addEventListener("change", handleFileUpload);
+
+  document.getElementById("clearConceptBtn").addEventListener("click", () => {
+    els.conceptInput.value = "";
+    updatePrompt();
+  });
+
+  document.getElementById("copyPromptBtn").addEventListener("click", copyPrompt);
+  document.getElementById("downloadPromptBtn").addEventListener("click", downloadPrompt);
+  document.getElementById("generateBtn").addEventListener("click", generateReportFromJson);
+  document.getElementById("validateBtn").addEventListener("click", validateJsonOnly);
+  document.getElementById("newReportBtn").addEventListener("click", newReport);
+  document.getElementById("toggleEditBtn").addEventListener("click", toggleEdit);
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+  document.getElementById("saveHtmlBtn").addEventListener("click", saveStandaloneHtml);
+  document.getElementById("saveJsonBtn").addEventListener("click", saveJson);
+});
+
+async function fetchJson(url) {
+  if (url === "examples/sample-response.json" && window.EZRA_SAMPLE_JSON) {
+    return window.EZRA_SAMPLE_JSON;
+  }
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Cannot load " + url);
+  return res.json();
 }
 
-function genReport(){
-  const raw=document.getElementById('aiRes').value.trim();
-  if(!raw){showErr('הדבק את תשובת ה-AI'); return;}
-  let js=raw;
-  const f=raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  if(f)js=f[1];
-  else{const s=raw.indexOf('{'),e=raw.lastIndexOf('}');if(s!==-1&&e!==-1)js=raw.slice(s,e+1);}
+function updatePrompt() {
+  const concept = els.conceptInput.value.trim();
+  els.promptPreview.value = buildRiskReportPrompt(concept);
+  els.conceptStats.textContent = `${concept.length.toLocaleString("he-IL")} תווים`;
+}
+
+async function handleFileUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const text = await file.text();
+  els.conceptInput.value = text;
+  updatePrompt();
+}
+
+async function copyPrompt() {
+  try {
+    await navigator.clipboard.writeText(els.promptPreview.value);
+    setStatus(els.copyStatus, "✅ הפרומפט הועתק");
+  } catch {
+    els.promptPreview.select();
+    document.execCommand("copy");
+    setStatus(els.copyStatus, "✅ הפרומפט הועתק");
+  }
+}
+
+function downloadPrompt() {
+  downloadText("ezra-risk-report-prompt.txt", els.promptPreview.value, "text/plain;charset=utf-8");
+}
+
+function validateJsonOnly() {
+  try {
+    parseAiJson(els.jsonInput.value);
+    setStatus(els.jsonStatus, "✅ JSON תקין");
+  } catch (err) {
+    setStatus(els.jsonStatus, "❌ " + err.message, true);
+  }
+}
+
+function generateReportFromJson() {
+  try {
+    const data = parseAiJson(els.jsonInput.value);
+    loadReport(data);
+    setStatus(els.jsonStatus, "✅ הדוח נוצר");
+  } catch (err) {
+    setStatus(els.jsonStatus, "❌ " + err.message, true);
+  }
+}
+
+function parseAiJson(raw) {
+  const cleaned = stripMarkdownJson(raw || "");
+  if (!cleaned.trim()) throw new Error("לא הוזן JSON");
   let data;
-  try{data=JSON.parse(js);}
-  catch(e){showErr('לא ניתן לזהות תשובה תקינה. בקש מה-AI: "החזר JSON בלבד ללא הסברים"');return;}
-  renderAndShow(data);
+  try {
+    data = JSON.parse(cleaned);
+  } catch (err) {
+    throw new Error("JSON לא תקני. בדוק פסיקים, גרשיים וסוגריים.");
+  }
+  validateReportSchema(data);
+  return data;
 }
 
-function showDemo(){renderAndShow(DEMO);}
+function stripMarkdownJson(raw) {
+  let text = raw.trim();
 
-function showErr(msg){
-  const el=document.getElementById('errBox');
-  el.textContent='❌ '+msg;el.style.display='block';
+  // Remove common Markdown fences
+  text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+
+  // If the model added text before/after JSON, try to extract the outer JSON object.
+  const first = text.indexOf("{");
+  const last = text.lastIndexOf("}");
+  if (first !== -1 && last !== -1 && last > first) {
+    text = text.slice(first, last + 1);
+  }
+  return text;
 }
 
-function goBack(){document.getElementById('reportWrapper').style.display='none';}
-
-let editing=false;
-function toggleEdit(){
-  editing=!editing;
-  document.querySelectorAll('.ed').forEach(el=>el.setAttribute('contenteditable',editing));
-  document.getElementById('editBtn').textContent=editing?'💾 סיים':'🎨 עריכה';
+function validateReportSchema(data) {
+  if (!data || typeof data !== "object") throw new Error("הפלט אינו אובייקט JSON");
+  if (!data.meta || typeof data.meta !== "object") throw new Error("חסר meta");
+  if (!Array.isArray(data.goals) || data.goals.length !== 3) throw new Error("חייבות להיות בדיוק 3 מטרות");
+  if (!Array.isArray(data.risks) || data.risks.length < 4 || data.risks.length > 5) throw new Error("חייבים להיות 4-5 סיכונים");
+  const allowedSev = ["very-high", "high", "medium", "low"];
+  for (const risk of data.risks) {
+    if (!allowedSev.includes(risk.severity)) throw new Error(`רמת חומרה לא תקינה: ${risk.severity}`);
+    const expected = Number(risk.probability) * Number(risk.damage);
+    if (Number(risk.score) !== expected) throw new Error(`ציון סיכון "${risk.title}" אינו מכפלת הסתברות × נזק`);
+  }
 }
+
+function loadReport(data) {
+  currentReportData = data;
+  editMode = false;
+  els.reportMount.innerHTML = renderReport(data);
+  els.reportPanel.hidden = false;
+  els.reportPanel.scrollIntoView({behavior:"smooth"});
+}
+
+function newReport() {
+  els.reportPanel.hidden = true;
+  els.reportMount.innerHTML = "";
+  currentReportData = null;
+  editMode = false;
+  document.getElementById("builder").scrollIntoView({behavior:"smooth"});
+}
+
+function toggleEdit() {
+  editMode = !editMode;
+  document.querySelectorAll(".editable").forEach(el => {
+    el.setAttribute("contenteditable", editMode ? "true" : "false");
+  });
+  document.getElementById("toggleEditBtn").textContent = editMode ? "סיים עריכה" : "עריכה";
+}
+
+function saveStandaloneHtml() {
+  if (!currentReportData) return;
+  const reportHtml = els.reportMount.innerHTML;
+  const cssHref = new URL("assets/css/styles.css", window.location.href).href;
+  const standalone = `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(currentReportData.meta?.project_name || "risk-report")}</title>
+<link rel="stylesheet" href="${cssHref}">
+</head>
+<body>
+<div class="app-shell">
+<section class="report-panel" style="padding:0">
+${reportHtml}
+</section>
+</div>
+<script>
 function saveHTML(){
   const a=document.createElement('a');
   a.href='data:text/html;charset=utf-8,'+encodeURIComponent(document.documentElement.outerHTML);
-  a.download='report_'+Date.now()+'.html';a.click();
-}
-
-/* ══ RENDER ══ */
-function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
-function sbadge(st,lbl){
-  const m={full:'#27ae60',partial:'#f39c12',dev:'#3498db',improve:'#e74c3c'};
-  return `<span style="background:${m[st]||'#3498db'};color:${st==='medium'?'#2c3e50':'white'};padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:700;display:inline-block">${esc(lbl)}</span>`;
-}
-
-function renderAndShow(d){
-  document.getElementById('reportApp').innerHTML=buildReport(d);
-  document.getElementById('reportWrapper').style.display='block';
-  window.scrollTo(0,0);
-}
-
-function buildReport(d){
-  const m=d.meta||{};
-  const sc={'very-high':'#e74c3c','high':'#f39c12','medium':'#e8b800','low':'#27ae60'};
-  const cnt={vh:0,h:0,m:0,l:0};
-  (d.risks||[]).forEach(r=>{if(r.severity==='very-high')cnt.vh++;else if(r.severity==='high')cnt.h++;else if(r.severity==='medium')cnt.m++;else cnt.l++;});
-
-  const riskCards=(d.risks||[]).map(r=>`
-    <div style="background:white;border-radius:14px;box-shadow:0 8px 25px rgba(0,0,0,.09);padding:22px;border-top:5px solid ${sc[r.severity]||'#3498db'}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px">
-        <div class="ed" style="font-size:1.05em;font-weight:700;color:#2c3e50;flex:1">${esc(r.title)}</div>
-        <div class="ed" style="background:${sc[r.severity]||'#3498db'};color:${r.severity==='medium'?'#2c3e50':'white'};padding:4px 12px;border-radius:20px;font-size:.75em;font-weight:700;white-space:nowrap">${esc(r.severity_label)}</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;text-align:center">
-        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">${r.probability}</div><div style="font-size:.78em;color:#7f8c8d">הסתברות</div></div>
-        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">${r.damage}</div><div style="font-size:.78em;color:#7f8c8d">עוצמת נזק</div></div>
-        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">${r.score}</div><div style="font-size:.78em;color:#7f8c8d">דרגת חומרה</div></div>
-      </div>
-      <div class="ed" style="background:#f8f9fa;padding:12px;border-radius:8px;border-right:4px solid #bdc3c7;font-size:.93em;color:#34495e;line-height:1.6;margin-top:10px">${esc(r.description)}</div>
-      ${r.source?`<div class="ed" style="font-size:.8em;color:#555;background:#f0f4ff;padding:6px 11px;border-radius:7px;margin-top:8px;border-right:3px solid #3498db">📌 <strong>מקור:</strong> ${esc(r.source)}</div>`:''}
-      <div style="margin-top:12px">
-        <div style="font-weight:700;color:#e74c3c;margin-bottom:5px">השלכות:</div>
-        <ul style="list-style:none;padding-right:10px">${(r.impacts||[]).map(i=>`<li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ ${esc(i)}</li>`).join('')}</ul>
-        <div style="font-weight:700;color:#27ae60;margin:10px 0 5px">הזדמנויות:</div>
-        <ul style="list-style:none;padding-right:10px">${(r.opportunities||[]).map(o=>`<li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">✅ ${esc(o)}</li>`).join('')}</ul>
-      </div>
-    </div>`).join('');
-
-  const strats=(d.strategies||[]).map(s=>`
-    <div style="background:white;border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.08);overflow:hidden;margin-bottom:20px">
-      <div class="ed" style="background:linear-gradient(135deg,#27ae60,#2ecc71);color:white;padding:16px 22px;font-weight:700;font-size:1.05em">${esc(s.title)}</div>
-      <div style="padding:20px 22px">
-        <p class="ed" style="color:#34495e;margin-bottom:14px">${esc(s.description)}</p>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
-          ${(s.items||[]).map(it=>`<div style="background:#f8f9fa;padding:12px;border-radius:10px;border-right:4px solid #27ae60">
-            <h5 class="ed" style="color:#27ae60;margin-bottom:4px;font-size:.92em">${esc(it.title)}</h5>
-            <p class="ed" style="font-size:.85em;color:#34495e">${esc(it.description)}</p>
-            <span style="display:inline-block;background:${it.badge_type==='kpi'?'#8e44ad':'#3498db'};color:white;padding:2px 9px;border-radius:11px;font-size:.74em;margin-top:4px">${esc(it.badge)}</span>
-          </div>`).join('')}
-        </div>
-      </div>
-    </div>`).join('');
-
-  const ir=d.innovation_regulation||{};
-  const inv=d.innovation||{};
-  const ex=d.executive_summary||{};
-  const f=d.footer||{};
-
-  const srcData=[
-    ['🏛️ חוקים ורגולציית חינוך',[
-      ['https://innovate.education.gov.il/','📌 חוזר מנכ"ל לאסדרת חדשנות'],
-      ['https://www.nevo.co.il/law_html/law01/053_001.htm','⚖️ חוק לימוד חובה, תש"ט–1949'],
-      ['https://edu.gov.il/owlHtml/sites/MazkirutPed/ChozreMankal/','📂 מאגר חוזרי מנכ"ל'],
-      ['https://www.nevo.co.il/law_html/law01/058_001.htm','⚖️ חוק חינוך ממלכתי, 1953'],
-      ['https://edu.gov.il/minhalpedagogy/law','📋 חוקי חינוך כלליים'],
-      ['https://edu.gov.il/minhalpedagogy/shaat-chinuch/core','📖 תוכנית ליבה לשעת חינוך']
-    ]],
-    ['🤖 חדשנות אחראית ובינה מלאכותית',[
-      ['https://innovate.education.gov.il/AI','🧠 שימוש בכלי בינה מלאכותית בחינוך (2025)'],
-      ['https://innovate.education.gov.il/regulation-map','🗺️ מפת התמצאות לאסדרת חדשנות']
-    ]],
-    ['📊 תכנון ובקרה',[
-      ['https://harhayeda.gov.il/media/4wqogjpb/20241208-tasc-di-cio-methodology-for-publishing-v01.pdf','📄 מדריך לתכנון ובקרה (CIO, 2024)']
-    ]],
-    ['💰 שכר ותנאי העסקה',[
-      ['https://www.irgun-morim.org.il/oz-letmura','📝 עוז לתמורה – ארגון המורים (חט"ע)'],
-      ['https://www.edu.gov.il/minhalpedagogy/ofek-hadash','📝 אופק חדש – הסתדרות המורים']
-    ]],
-    ['📅 ארגון לימודים ופיתוח מקצועי',[
-      ['https://edu.gov.il/owlHtml/sites/MazkirutPed/ChozreMankal/Pages/tashpav-1-11.aspx','🗓️ ארגון הלמידה בחינוך העל-יסודי תשפ"ו'],
-      ['https://teachers.education.gov.il/professional-development','🎓 פיתוח מקצועי – פורטל עובדי הוראה'],
-      ['https://www.edu.gov.il/minhalpedagogy/histadrut','🏫 הנחיות הסתדרות המורים'],
-      ['https://edu.gov.il/minhalpedagogy/curricula/textbooks','📚 מאגר ספרי לימוד מאושרים']
-    ]]
-  ];
-
-  const srcHTML=srcData.map(([cat,links])=>`
-    <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,.14)">
-      <div style="font-size:.93em;font-weight:700;color:#1abc9c;margin-bottom:11px;padding-bottom:7px;border-bottom:2px solid rgba(26,188,156,.3)">${cat}</div>
-      ${links.map(([u,t])=>`<div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="${u}" target="_blank" style="color:#abebc6;text-decoration:none;font-size:.85em">${t}</a></div>`).join('')}
-    </div>`).join('');
-
-  const secHdr=(txt,extra='')=>`<div ${extra} style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;padding:20px 35px;font-size:1.6em;font-weight:700;text-align:center" class="ed">${txt}</div>`;
-
-  return `
-    <div style="background:linear-gradient(135deg,#1a3a5c,#2c3e50);color:white;padding:45px 35px;text-align:center">
-      <h1 class="ed" style="font-size:2.4em;margin-bottom:8px;text-shadow:2px 2px 4px rgba(0,0,0,.3)">⚠️ דוח ניהול סיכונים</h1>
-      <div class="ed" style="font-size:1.1em;opacity:.9;margin-bottom:6px">${esc(m.project_name)} — ${esc(m.subtitle)}</div>
-      <div class="ed" style="display:inline-block;background:rgba(255,255,255,.2);padding:7px 16px;border-radius:20px;font-size:.85em;margin-top:10px">אחראי: ${esc(m.responsible)} • ${esc(m.date)}</div>
-    </div>
-
-    <nav class="r-nav" style="position:sticky;top:0;background:linear-gradient(135deg,#34495e,#2c3e50);z-index:900;box-shadow:0 4px 8px rgba(0,0,0,.2)">
-      <ul style="display:flex;list-style:none;margin:0;padding:0">
-        ${[['#s1','📋 פרויקט'],['#s2','⚠️ סיכונים'],['#s3','📈 התמודדות'],['#s4','🚀 אסדרה'],['#s5','📊 חדשנות'],['#s6','✅ רגולציה'],['#s7','📝 סיכום'],['#s8','📚 מקורות']].map(([h,l])=>`<li style="flex:1"><a href="${h}" style="display:block;padding:13px 6px;color:#bdc3c7;text-decoration:none;text-align:center;font-weight:600;font-size:.75em;border-left:1px solid #2c3e50" onmouseover="this.style.background='#2c3e50';this.style.color='white'" onmouseout="this.style.background='';this.style.color='#bdc3c7'">${l}</a></li>`).join('')}
-      </ul>
-    </nav>
-
-    <section id="s1" style="scroll-margin-top:55px">
-      ${secHdr('📋 הגדרת הפרויקט')}
-      <div style="padding:28px;background:linear-gradient(135deg,#f8f9fa,#e9ecef)">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px">
-          ${(m.overview_cards||[]).map(c=>`<div style="background:white;padding:16px;border-radius:12px;box-shadow:0 5px 16px rgba(0,0,0,.07);border-top:4px solid #3498db"><h4 style="color:#2c3e50;margin-bottom:6px;font-size:.92em">${esc(c.icon)} <span class="ed">${esc(c.title)}</span></h4><p class="ed" style="color:#34495e;font-size:.88em">${esc(c.content)}</p></div>`).join('')}
-        </div>
-      </div>
-      <div style="background:white;margin:18px 28px;padding:20px;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.07)">
-        <h3 class="ed" style="color:#2c3e50;margin-bottom:12px;font-size:1.15em;text-align:center">🎯 מטרות הפרויקט</h3>
-        ${(d.goals||[]).map((g,i)=>`<div class="ed" style="background:#f8f9fa;margin:8px 0;padding:13px;border-radius:9px;border-right:4px solid #27ae60"><strong>${i+1}. ${esc(g.title)}</strong><br><span style="color:#34495e;font-size:.93em">${esc(g.description)}</span></div>`).join('')}
-      </div>
-      <div style="background:white;margin:18px 28px;padding:20px;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.07)">
-        <h3 class="ed" style="color:#2c3e50;margin-bottom:12px;font-size:1.15em;text-align:center">📋 תוצרים מצופים</h3>
-        ${(d.deliverables||[]).map(dv=>`<div class="ed" style="background:#f8f9fa;margin:8px 0;padding:13px;border-radius:9px;border-right:4px solid #27ae60"><strong>${esc(dv.title)}</strong> — <span style="color:#34495e;font-size:.93em">${esc(dv.description)}</span></div>`).join('')}
-      </div>
-    </section>
-
-    <section id="s2" style="scroll-margin-top:55px">
-      ${secHdr('⚠️ ניהול סיכונים')}
-      <div style="padding:28px;background:white">
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px">
-          ${[['#e74c3c',cnt.vh,'גבוהה מאוד'],['#f39c12',cnt.h,'גבוהה'],['#e8b800',cnt.m,'בינונית'],['#27ae60',cnt.l,'נמוכה']].map(([c,n,l])=>`<div style="background:linear-gradient(135deg,#f8f9fa,#e9ecef);padding:14px;border-radius:12px;text-align:center;box-shadow:0 5px 16px rgba(0,0,0,.07)"><div class="ed" style="font-size:2.2em;font-weight:700;color:${c}">${n}</div><div style="font-size:.8em;color:#7f8c8d">${l}</div></div>`).join('')}
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px">${riskCards}</div>
-      </div>
-    </section>
-
-    <section id="s3" style="scroll-margin-top:55px">
-      ${secHdr('📈 תוכנית התמודדות')}
-      <div style="padding:28px;background:linear-gradient(135deg,#ecf0f1,#dfe6e9)">${strats}</div>
-    </section>
-
-    <section id="s4" style="scroll-margin-top:55px">
-      ${secHdr('🚀 אסדרת חדשנות')}
-      <div style="padding:28px;background:linear-gradient(135deg,#f8f9fa,#e9ecef)">
-        <div style="background:white;padding:22px;border-radius:14px;margin-bottom:16px;box-shadow:0 5px 16px rgba(0,0,0,.07)">
-          <h3 class="ed" style="color:#8e44ad;margin-bottom:10px">${esc(ir.title)}</h3>
-          <p class="ed" style="color:#34495e;line-height:1.8">${esc(ir.description)}</p>
-          <p class="ed" style="color:#34495e;line-height:1.8;margin-top:10px">${esc(ir.rri_statement)}</p>
-        </div>
-        <div style="background:#f0f8ff;padding:18px;border-radius:12px;border-left:5px solid #3498db">
-          <h4 style="color:#34495e;margin-bottom:8px">🏛️ המלצת ועדת המשנה לאסדרת חדשנות</h4>
-          <p class="ed" style="color:#34495e;line-height:1.8">${esc(ir.committee_recommendation)}</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="s5" style="scroll-margin-top:55px">
-      ${secHdr('📊 רמת החדשנות')}
-      <div style="background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;padding:35px;text-align:center">
-        <h2 class="ed" style="font-size:1.3em;margin-bottom:4px">ציון חדשנות כולל</h2>
-        <div class="ed" style="font-size:4.5em;font-weight:700;margin:16px 0;text-shadow:2px 2px 5px rgba(0,0,0,.3)">${inv.score}</div>
-        <div class="ed" style="font-size:1.1em;opacity:.9;margin-top:-10px;margin-bottom:12px">/ 10 — ${esc(inv.label)}</div>
-        <p class="ed" style="opacity:.85;max-width:600px;margin:0 auto 20px">${esc(inv.description)}</p>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
-          ${(inv.components||[]).map(c=>`<div style="background:rgba(255,255,255,.14);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.2)"><div class="ed" style="font-size:2em;font-weight:700;color:#f39c12;margin-bottom:4px">${c.score}</div><div class="ed" style="font-weight:700;margin-bottom:4px">${esc(c.title)}</div><p class="ed" style="opacity:.85;font-size:.86em">${esc(c.description)}</p></div>`).join('')}
-        </div>
-      </div>
-    </section>
-
-    <section id="s6" style="scroll-margin-top:55px">
-      ${secHdr('✅ התאמה לדרישות אסדרה')}
-      <div style="padding:28px;background:#ecf0f1">
-        <table style="width:100%;background:white;border-radius:14px;overflow:hidden;box-shadow:0 5px 16px rgba(0,0,0,.07);border-collapse:collapse">
-          <thead><tr style="background:#34495e;color:white"><th style="padding:13px 16px;text-align:right;font-weight:700">דרישת אסדרה</th><th style="padding:13px 16px;text-align:right;font-weight:700">סטטוס</th><th style="padding:13px 16px;text-align:right;font-weight:700">פעולה נדרשת</th></tr></thead>
-          <tbody>${(d.regulation_table||[]).map(r=>`<tr style="border-bottom:1px solid #ecf0f1"><td class="ed" style="padding:13px 16px;vertical-align:top"><strong>${esc(r.requirement)}</strong><br><small style="color:#7f8c8d">${esc(r.requirement_detail)}</small></td><td style="padding:13px 16px;vertical-align:top">${sbadge(r.status,r.status_label)}</td><td class="ed" style="padding:13px 16px;vertical-align:top">${esc(r.action)}</td></tr>`).join('')}</tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="s7" style="scroll-margin-top:55px">
-      ${secHdr('📝 סיכום מנהלים והמלצות')}
-      <div style="padding:28px;background:linear-gradient(135deg,#2c3e50,#34495e);color:white">
-        <h2 class="ed" style="text-align:center;color:#f39c12;margin-bottom:16px">סיכום ביצועי</h2>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:18px">
-          ${(ex.cards||[]).map(c=>`<div style="background:rgba(255,255,255,.1);padding:15px;border-radius:12px;border:1px solid rgba(255,255,255,.14)"><h4 style="color:#f39c12;margin-bottom:6px;font-size:.92em">${esc(c.title)}</h4><p class="ed" style="font-size:.9em">${esc(c.content)}</p></div>`).join('')}
-        </div>
-        <div style="background:rgba(255,255,255,.07);padding:18px;border-radius:12px">
-          <h3 style="color:#f39c12;margin-bottom:12px">💡 המלצות מרכזיות</h3>
-          ${(ex.recommendations||[]).map((r,i)=>`<div class="ed" style="background:rgba(255,255,255,.07);margin:9px 0;padding:12px;border-radius:9px;border-right:4px solid #f39c12;font-size:.91em"><strong>${i+1}. ${esc(r.title)}</strong><br>${esc(r.description)}</div>`).join('')}
-        </div>
-        ${ex.footer_note?`<p class="ed" style="text-align:center;margin-top:16px;opacity:.7;font-size:.88em">${esc(ex.footer_note)}</p>`:''}
-      </div>
-    </section>
-
-    <section id="s8" style="scroll-margin-top:55px">
-      <div style="background:linear-gradient(135deg,#16a085,#1abc9c);color:white;padding:20px 35px;font-size:1.6em;font-weight:700;text-align:center">📚 מקורות ידע</div>
-      <div style="background:linear-gradient(135deg,#1a252f,#2c3e50);padding:32px;color:white">
-        <p style="text-align:center;font-size:.93em;color:rgba(255,255,255,.8);max-width:650px;margin:0 auto 20px">הדוח מבוסס על מאגר ידע מוסמך ועדכני. כל ניתוח, סיכון והמלצה מתבסס על המקורות המפורטים להלן.</p>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px">${srcHTML}</div>
-        <div style="margin-top:18px;background:rgba(26,188,156,.1);border:1px solid rgba(26,188,156,.25);border-radius:10px;padding:13px;font-size:.83em;color:rgba(255,255,255,.8)">
-          <strong style="color:#1abc9c">📌 הערת שימוש:</strong> כל ציטוט רגולטורי בסעיפי הסיכונים מתבסס על מקורות אלו.
-          לבדיקת עדכניות המדיניות: <a href="https://edu.gov.il" target="_blank" style="color:#1abc9c">edu.gov.il</a>
-        </div>
-      </div>
-    </section>
-
-    <div style="background:#1a252f;color:#7f8c8d;text-align:center;padding:22px;font-size:.88em">
-      <p class="ed">${esc(f.main)}</p>
-      <p style="margin-top:5px;opacity:.8">${esc(f.sources)}</p>
-      <p style="margin-top:10px"><strong style="color:#3498db">פיתוח ועיצוב: ${esc(f.credit)}</strong></p>
-    </div>`;
+  a.download='risk-report.html';
+  a.click();
 }
 </script>
+</body>
+</html>`;
+  downloadText(makeFilename("html"), standalone, "text/html;charset=utf-8");
+}
+
+function saveJson() {
+  if (!currentReportData) return;
+  downloadText(makeFilename("json"), JSON.stringify(currentReportData, null, 2), "application/json;charset=utf-8");
+}
+
+function makeFilename(ext) {
+  const base = (currentReportData?.meta?.project_name || window.EZRA_CONFIG.defaultFilename)
+    .toString()
+    .replace(/[\\/:*?"<>|]+/g, "-")
+    .replace(/\s+/g, "-")
+    .slice(0, 80);
+  return `${base}.${ext}`;
+}
+
+function downloadText(filename, content, type) {
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function setStatus(el, text, isError = false) {
+  el.textContent = text;
+  el.style.color = isError ? "#e74c3c" : "#27ae60";
+  window.setTimeout(() => {
+    if (el.textContent === text) el.textContent = "";
+  }, 4200);
+}
+
+  </script>
 </body>
 </html>
