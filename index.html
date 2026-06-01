@@ -1,1 +1,765 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EZRA 5.0 — מחולל דוחות ניהול סיכונים</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #2c3e50;
+}
 
+/* ─── HERO ─── */
+.hero {
+  background: linear-gradient(135deg, #1a3a5c 0%, #2c3e50 100%);
+  color: white; padding: 40px 20px 50px; text-align: center;
+}
+.hero-badge {
+  display: inline-block; background: rgba(52,152,219,0.25);
+  border: 1px solid rgba(52,152,219,0.4); color: #7fc8f8;
+  padding: 6px 18px; border-radius: 20px; font-size: 0.85em; margin-bottom: 16px;
+}
+.hero h1 { font-size: 2.8em; font-weight: 800; margin-bottom: 8px; }
+.hero h1 span { color: #3498db; }
+.hero p { font-size: 1.1em; opacity: 0.85; max-width: 550px; margin: 0 auto; }
+
+/* ─── WIZARD ─── */
+.wizard {
+  max-width: 700px; margin: -30px auto 60px;
+  padding: 0 20px; position: relative; z-index: 10;
+}
+
+.step-card {
+  background: white; border-radius: 22px;
+  box-shadow: 0 25px 70px rgba(0,0,0,0.18);
+  overflow: hidden;
+}
+
+.step-header {
+  padding: 28px 35px 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.step-num {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3em; font-weight: 800; color: white; flex-shrink: 0;
+}
+.step-num.blue  { background: linear-gradient(135deg, #3498db, #2980b9); }
+.step-num.green { background: linear-gradient(135deg, #27ae60, #1e8449); }
+.step-header-text h2 { font-size: 1.3em; color: #2c3e50; }
+.step-header-text p  { font-size: 0.9em; color: #7f8c8d; margin-top: 2px; }
+
+.step-body { padding: 0 35px 30px; }
+
+.ai-badges {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.ai-badge {
+  padding: 4px 12px; border-radius: 16px; font-size: 0.8em; font-weight: 600;
+}
+.badge-blue   { background: #ebf5fb; color: #2980b9; }
+.badge-green  { background: #eafaf1; color: #229954; }
+.badge-yellow { background: #fef9e7; color: #b7950b; }
+.badge-purple { background: #f5eef8; color: #7d3c98; }
+
+textarea.input-area {
+  width: 100%; min-height: 200px;
+  border: 2px dashed #bdc3c7; border-radius: 14px;
+  padding: 16px; font-size: 0.95em; font-family: inherit;
+  color: #2c3e50; resize: vertical; outline: none;
+  transition: border-color 0.3s; direction: rtl;
+  background: #fafbfc;
+}
+textarea.input-area:focus  { border-color: #3498db; background: white; }
+textarea.input-area.filled { border-color: #27ae60; border-style: solid; background: #f0faf5; }
+
+.main-btn {
+  margin-top: 16px; width: 100%; border: none;
+  padding: 17px; border-radius: 14px; font-size: 1.1em; font-weight: 700;
+  cursor: pointer; transition: all 0.3s ease; color: white;
+}
+.main-btn.blue  { background: linear-gradient(135deg,#3498db,#2980b9); box-shadow: 0 8px 25px rgba(52,152,219,0.35); }
+.main-btn.green { background: linear-gradient(135deg,#27ae60,#1e8449); box-shadow: 0 8px 25px rgba(39,174,96,0.35); }
+.main-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+.back-link {
+  display: block; text-align: center; margin-top: 14px;
+  color: #95a5a6; font-size: 0.9em; cursor: pointer;
+  text-decoration: underline; background: none; border: none; width: 100%;
+}
+
+.hint { color: #95a5a6; font-size: 0.82em; margin-top: 10px; text-align: center; }
+
+.success-box {
+  background: #eafaf1; border: 1px solid #27ae60; border-radius: 12px;
+  padding: 16px 20px; margin-bottom: 16px; color: #1e8449;
+  font-size: 0.95em; line-height: 1.7; display: none;
+}
+.error-box {
+  background: #fdf2f2; border: 1px solid #e74c3c; border-radius: 12px;
+  padding: 14px 18px; margin-top: 12px; color: #c0392b;
+  font-size: 0.9em; display: none;
+}
+
+/* ─── REPORT ─── */
+#reportSection { display: none; }
+
+.report-toolbar {
+  position: fixed; top: 20px; left: 20px; z-index: 1000;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.toolbar-btn {
+  border: none; padding: 12px 20px; border-radius: 25px;
+  cursor: pointer; font-size: 0.9em; font-weight: bold;
+  color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+.toolbar-btn:hover { transform: translateY(-2px); }
+.btn-edit   { background: #3498db; }
+.btn-edit.active { background: #27ae60; }
+.btn-pdf    { background: #e74c3c; }
+.btn-save   { background: #8e44ad; }
+.btn-new    { background: #95a5a6; }
+
+.report-container {
+  max-width: 1200px; margin: 0 auto;
+  background: rgba(255,255,255,0.98);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+/* ── report internals ── */
+.r-header {
+  background: linear-gradient(135deg,#1a3a5c,#2c3e50);
+  color: white; padding: 50px 40px; text-align: center; position: relative; overflow: hidden;
+}
+.r-header::before {
+  content:''; position:absolute; inset:0;
+  background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="g" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0L0 0 0 10" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23g)"/></svg>');
+  opacity:.3;
+}
+.r-header h1 { font-size:2.6em; position:relative; z-index:1; margin-bottom:10px; text-shadow:2px 2px 4px rgba(0,0,0,.3); }
+.r-header .sub { font-size:1.2em; opacity:.9; position:relative; z-index:1; margin-bottom:6px; }
+.r-header .badge { display:inline-block; background:rgba(255,255,255,.2); padding:7px 16px; border-radius:20px; font-size:.85em; margin-top:10px; position:relative; z-index:1; }
+
+.r-nav { position:sticky; top:0; background:linear-gradient(135deg,#34495e,#2c3e50); z-index:900; box-shadow:0 4px 8px rgba(0,0,0,.2); }
+.r-nav ul { display:flex; list-style:none; margin:0; padding:0; }
+.r-nav li { flex:1; }
+.r-nav a { display:block; padding:14px 8px; color:#bdc3c7; text-decoration:none; text-align:center; font-weight:600; font-size:.78em; transition:all .3s; border-left:1px solid #2c3e50; }
+.r-nav li:first-child a { border-left:none; }
+.r-nav a:hover,.r-nav a.active { background:#2c3e50; color:white; }
+
+.r-section { scroll-margin-top:55px; }
+.r-sec-header {
+  background:linear-gradient(135deg,#e74c3c,#c0392b);
+  color:white; padding:22px 35px; font-size:1.8em; font-weight:bold; text-align:center; position:relative;
+}
+.r-sec-header::after { content:''; position:absolute; bottom:-10px; left:50%; transform:translateX(-50%); width:60px; height:4px; background:rgba(255,255,255,.8); border-radius:2px; }
+
+.r-overview { padding:35px; background:linear-gradient(135deg,#f8f9fa,#e9ecef); }
+.r-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-top:20px; }
+.r-card { background:white; padding:20px; border-radius:14px; box-shadow:0 6px 20px rgba(0,0,0,.07); border-top:4px solid #3498db; transition:all .3s; }
+.r-card:hover { transform:translateY(-3px); }
+.r-card h4 { color:#2c3e50; margin-bottom:8px; font-size:1em; display:flex; align-items:center; gap:6px; }
+
+.r-list-section { background:white; margin:22px 35px; padding:24px; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,.07); }
+.r-list-section h3 { color:#2c3e50; margin-bottom:14px; font-size:1.3em; text-align:center; }
+.r-item { background:#f8f9fa; margin:10px 0; padding:16px; border-radius:9px; border-right:4px solid #27ae60; transition:all .3s; }
+.r-item:hover { background:#e9ecef; transform:translateX(-4px); }
+
+.r-risks { padding:35px; background:white; }
+.r-risk-summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:28px; }
+.r-sum-card { background:linear-gradient(135deg,#f8f9fa,#e9ecef); padding:18px; border-radius:12px; text-align:center; box-shadow:0 6px 20px rgba(0,0,0,.08); }
+.r-sum-num { font-size:2.5em; font-weight:bold; margin-bottom:6px; }
+.c-vh{color:#e74c3c} .c-h{color:#f39c12} .c-m{color:#e8b800} .c-l{color:#27ae60}
+
+.r-risks-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:22px; margin-top:24px; }
+.r-risk-card { background:white; border-radius:14px; box-shadow:0 8px 25px rgba(0,0,0,.09); padding:24px; transition:all .3s; border-top:5px solid; }
+.r-risk-card:hover { transform:translateY(-4px); box-shadow:0 16px 35px rgba(0,0,0,.13); }
+.risk-very-high{border-top-color:#e74c3c} .risk-high{border-top-color:#f39c12} .risk-medium{border-top-color:#e8b800} .risk-low{border-top-color:#27ae60}
+.r-risk-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; gap:10px; }
+.r-risk-title { font-size:1.1em; font-weight:bold; color:#2c3e50; flex:1; }
+.r-sev-badge { padding:5px 12px; border-radius:20px; font-size:.75em; font-weight:bold; color:white; white-space:nowrap; }
+.sev-very-high{background:#e74c3c} .sev-high{background:#f39c12} .sev-medium{background:#e8b800;color:#2c3e50} .sev-low{background:#27ae60}
+.r-metrics { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:14px 0; text-align:center; }
+.r-metric { background:#f8f9fa; padding:12px; border-radius:9px; }
+.r-metric-val { font-size:1.6em; font-weight:bold; color:#2c3e50; }
+.r-metric-lbl { font-size:.8em; color:#7f8c8d; margin-top:3px; }
+.r-desc { color:#34495e; line-height:1.7; background:#f8f9fa; padding:14px; border-radius:9px; margin-top:12px; border-right:4px solid #bdc3c7; font-size:.95em; }
+.r-impact { margin-top:14px; }
+.r-impact-title { font-weight:bold; color:#e74c3c; margin-bottom:6px; }
+.r-opp-title { font-weight:bold; color:#27ae60; margin-top:14px; margin-bottom:6px; }
+.r-list-ul { list-style:none; padding-right:10px; }
+.r-list-ul li { padding:6px 0; border-bottom:1px solid #ecf0f1; font-size:.92em; }
+.r-list-ul.impacts li::before{content:'⚠️'; margin-left:6px;}
+.r-list-ul.opps   li::before{content:'✅'; margin-left:6px;}
+.r-src{font-size:.82em;color:#555;background:#f0f4ff;padding:7px 12px;border-radius:7px;margin-top:10px;border-right:3px solid #3498db;}
+.r-src strong{color:#2980b9;}
+.r-sources{background:linear-gradient(135deg,#1a252f,#2c3e50);padding:40px 35px;color:white;}
+.r-src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:24px;}
+.r-src-cat{background:rgba(255,255,255,.08);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,.14);}
+.r-src-cat-title{font-size:1em;font-weight:bold;color:#1abc9c;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid rgba(26,188,156,.3);display:flex;align-items:center;gap:8px;}
+.r-src-item{margin:6px 0;padding:7px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c;}
+.r-src-item a{color:#abebc6;text-decoration:none;font-size:.87em;display:flex;align-items:flex-start;gap:6px;line-height:1.4;}
+.r-src-item a:hover{color:#1abc9c;text-decoration:underline;}
+.r-src-note{margin-top:20px;background:rgba(26,188,156,.1);border:1px solid rgba(26,188,156,.25);border-radius:10px;padding:14px;font-size:.84em;color:rgba(255,255,255,.8);}
+.r-src-note strong{color:#1abc9c;}
+
+.r-strategies { padding:40px 35px; background:linear-gradient(135deg,#ecf0f1,#dfe6e9); }
+.r-strat-card { background:white; margin:22px 0; border-radius:18px; box-shadow:0 12px 30px rgba(0,0,0,.09); overflow:hidden; transition:all .3s; }
+.r-strat-card:hover { transform:translateY(-4px); }
+.r-strat-head { background:linear-gradient(135deg,#27ae60,#2ecc71); color:white; padding:18px 24px; font-weight:bold; font-size:1.15em; }
+.r-strat-body { padding:22px 24px; }
+.r-strat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:14px; }
+.r-strat-item { background:#f8f9fa; padding:14px; border-radius:10px; border-right:4px solid #27ae60; }
+.r-strat-item h5 { color:#27ae60; margin-bottom:5px; font-size:.95em; }
+.r-strat-item p { font-size:.88em; color:#34495e; }
+.r-badge-time { display:inline-block; background:#3498db; color:white; padding:3px 10px; border-radius:12px; font-size:.75em; margin-top:6px; }
+.r-badge-kpi  { display:inline-block; background:#8e44ad; color:white; padding:3px 10px; border-radius:12px; font-size:.75em; margin-top:6px; }
+
+.r-innov-reg { background:linear-gradient(135deg,#f8f9fa,#e9ecef); padding:40px 35px; }
+.r-white-box { background:white; padding:24px; border-radius:14px; margin:20px 0; box-shadow:0 6px 20px rgba(0,0,0,.07); }
+.r-committee-box { background:#f0f8ff; padding:18px; border-radius:12px; margin-top:18px; border-left:5px solid #3498db; }
+.r-committee-box h4 { color:#34495e; margin-bottom:8px; }
+
+.r-innov-level { background:linear-gradient(135deg,#8e44ad,#9b59b6); color:white; padding:40px 35px; text-align:center; }
+.r-innov-score { font-size:4.5em; font-weight:bold; margin:20px 0; text-shadow:2px 2px 5px rgba(0,0,0,.3); }
+.r-innov-label { font-size:1.2em; opacity:.9; margin-top:-12px; margin-bottom:12px; }
+.r-innov-comps { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-top:28px; }
+.r-comp-card { background:rgba(255,255,255,.14); padding:18px; border-radius:13px; border:1px solid rgba(255,255,255,.2); transition:all .3s; }
+.r-comp-card:hover { background:rgba(255,255,255,.2); transform:translateY(-3px); }
+.r-comp-score { font-size:2.2em; font-weight:bold; color:#f39c12; margin-bottom:6px; }
+.r-comp-title { font-size:1em; font-weight:bold; margin-bottom:6px; }
+
+.r-reg { padding:35px; background:#ecf0f1; }
+.r-reg-table { width:100%; background:white; border-radius:14px; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,.07); }
+.r-reg-table th,.r-reg-table td { padding:14px 16px; text-align:right; border-bottom:1px solid #ecf0f1; vertical-align:top; }
+.r-reg-table th { background:#34495e; color:white; font-weight:bold; }
+.r-reg-table tr:hover { background:#f8f9fa; }
+.b-full{background:#27ae60;color:white;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:bold;display:inline-block}
+.b-partial{background:#f39c12;color:white;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:bold;display:inline-block}
+.b-dev{background:#3498db;color:white;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:bold;display:inline-block}
+.b-improve{background:#e74c3c;color:white;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:bold;display:inline-block}
+
+.r-exec { padding:40px 35px; background:linear-gradient(135deg,#2c3e50,#34495e); color:white; }
+.r-exec-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin:22px 0; }
+.r-exec-card { background:rgba(255,255,255,.1); padding:18px; border-radius:13px; border:1px solid rgba(255,255,255,.14); }
+.r-exec-card h4 { color:#f39c12; font-size:1em; margin-bottom:8px; }
+.r-recs-box { background:rgba(255,255,255,.07); padding:20px; border-radius:13px; margin-top:16px; }
+.r-recs-box h3 { color:#f39c12; margin-bottom:14px; }
+.r-rec-item { background:rgba(255,255,255,.07); margin:10px 0; padding:14px; border-radius:9px; border-right:4px solid #f39c12; font-size:.92em; }
+
+.r-footer { background:#1a252f; color:#7f8c8d; text-align:center; padding:25px; font-size:.88em; }
+.r-footer strong { color:#3498db; }
+
+.r-back-top { position:fixed; bottom:25px; left:25px; background:#3498db; color:white; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 15px rgba(52,152,219,.4); transition:all .3s; z-index:1000; opacity:0; transform:translateY(20px); border:none; font-size:1.2em; }
+.r-back-top.visible { opacity:1; transform:translateY(0); }
+.r-back-top:hover { background:#2980b9; transform:translateY(-3px); }
+
+.editable { padding:3px; border-radius:3px; transition:all .3s; }
+.editable[contenteditable="true"] { background:rgba(52,152,219,.1); border:2px dashed #3498db; outline:none; cursor:text; padding:5px; }
+
+.toast { position:fixed; bottom:25px; right:25px; background:#27ae60; color:white; padding:12px 24px; border-radius:25px; font-weight:600; opacity:0; transform:translateY(20px); transition:all .3s; z-index:9999; }
+.toast.show { opacity:1; transform:translateY(0); }
+
+html { scroll-behavior:smooth; }
+
+@media (max-width:700px) {
+  .hero h1 { font-size:2em; }
+  .wizard { padding:0 12px; }
+  .step-header,.step-body { padding-left:18px; padding-right:18px; }
+  .r-risks-grid,.r-grid,.r-innov-comps { grid-template-columns:1fr; }
+  .r-metrics { grid-template-columns:1fr; }
+  .r-nav a { font-size:.7em; padding:12px 4px; }
+  .report-toolbar { top:10px; left:10px; }
+  .toolbar-btn { padding:9px 14px; font-size:.82em; }
+}
+@media print {
+  * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  .hero,.wizard,#reportSection .report-toolbar,.r-nav,.r-back-top,.toast { display:none !important; }
+  #reportSection { display:block !important; }
+  body { background:white !important; }
+  .report-container { box-shadow:none !important; border-radius:0 !important; max-width:100% !important; }
+  .r-risk-card,.r-strat-card,.r-card,.r-white-box { page-break-inside:avoid !important; }
+  @page { margin:10mm; size:A4; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-badge">🏛️ משרד החינוך — התוכנית הלאומית לבינה מלאכותית</div>
+  <h1>⚠️ <span>EZRA</span> 5.0</h1>
+  <p>מחולל דוחות ניהול סיכונים אוטומטי — הכנס מסמך תפיסה וקבל דוח מקצועי</p>
+  <button onclick="loadDemo()" style="margin-top:22px;background:linear-gradient(135deg,#f39c12,#e67e22);color:white;border:none;padding:14px 32px;border-radius:30px;font-size:1.05em;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(243,156,18,0.4);transition:all .3s;">
+    👁️ ראה דוגמה חיה ←
+  </button>
+  <p style="font-size:.82em;opacity:.6;margin-top:8px;">דוח לדוגמה יטען מיד — ללא כל פעולה נוספת</p>
+</div>
+
+<!-- ═══ WIZARD ═══ -->
+<div class="wizard" id="wizard">
+
+  <!-- שלב א -->
+  <div class="step-card" id="stepA">
+    <div class="step-header">
+      <div class="step-num blue">1</div>
+      <div class="step-header-text">
+        <h2>הכנס את מסמך התפיסה</h2>
+        <p>הדבק את הטקסט של הפרויקט — ה-AI יעבד אותו</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="ai-badges">
+        <span class="ai-badge badge-blue">Claude</span>
+        <span class="ai-badge badge-green">ChatGPT</span>
+        <span class="ai-badge badge-yellow">Gemini</span>
+        <span class="ai-badge badge-purple">כל מודל אחר</span>
+      </div>
+      <textarea class="input-area" id="docInput"
+        placeholder="הדבק כאן את מסמך התפיסה של הפרויקט...
+
+ניתן להדביק טקסט חופשי, תוכן מ-Word, PDF שהועתק, או כל פורמט אחר."></textarea>
+      <button class="main-btn blue" onclick="handleStepA()">📋 הכן ושלח ל-AI ←</button>
+      <p class="hint">הפרומפט + המסמך יועתקו לקליפבורד — תדביק בכל AI</p>
+    </div>
+  </div>
+
+  <!-- שלב ב -->
+  <div class="step-card" id="stepB" style="display:none;">
+    <div class="step-header">
+      <div class="step-num green">2</div>
+      <div class="step-header-text">
+        <h2>הדבק את התוצאה מה-AI</h2>
+        <p>אחרי ששלחת — העתק את כל התוצאה והדבק כאן</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="success-box" id="copiedMsg">
+        ✅ הפרומפט הועתק לקליפבורד!<br>
+        <strong>עכשיו:</strong> פתח Claude / ChatGPT / Gemini בטאב חדש ← הדבק (Ctrl+V) ← שלח ← העתק את כל התוצאה ← חזור לכאן
+      </div>
+      <textarea class="input-area" id="aiOutput"
+        placeholder="הדבק כאן את כל התוצאה מה-AI..."></textarea>
+      <div class="error-box" id="errorBox"></div>
+      <button class="main-btn green" onclick="handleStepB()">✅ צור דוח</button>
+      <button class="back-link" onclick="goBack()">← חזור לשלב 1</button>
+      <p class="hint">אף מידע לא נשלח לשרת — הכל רץ על המחשב שלך</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ REPORT ═══ -->
+<div id="reportSection">
+  <div class="report-toolbar">
+    <button class="toolbar-btn btn-edit" id="editBtn" onclick="toggleEdit()">🎨 עריכה</button>
+    <button class="toolbar-btn btn-pdf"  onclick="window.print()">📄 PDF</button>
+    <button class="toolbar-btn btn-save" onclick="saveHTML()">💾 שמור</button>
+    <button class="toolbar-btn btn-new"  onclick="startOver()">🔄 דוח חדש</button>
+  </div>
+  <div class="report-container">
+    <div id="reportApp"></div>
+  </div>
+  <button class="r-back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   EMBEDDED PROMPT
+═══════════════════════════════════════════ */
+const EZRA_PROMPT = `אתה מומחה לניהול סיכונים במערכת החינוך הישראלית.
+
+קרא את מסמך התפיסה המצורף וצור JSON בלבד — ללא הסברים, ללא טקסט נוסף, ללא markdown. רק JSON תקני.
+
+כללים מחייבים:
+- התמקד בהיבטים פדגוגיים ורגולטוריים בלבד
+- אל תזכיר נתונים כלכליים מספריים (תקציבים, עלויות)
+- זהה בדיוק 3 מטרות מרכזיות מהמסמך
+- גזור 4–5 סיכונים ישירות מהמטרות
+- כל סיכון: חומרה = הסתברות (1–10) × נזק (1–10)
+- רמות: גבוהה מאוד (81–100), גבוהה (49–80), בינונית (25–48), נמוכה (1–24)
+- ציין בכל סיכון לאיזו מטרה הוא קשור
+- המלצות קונקרטיות ומענה לכל אחת מ-3 המטרות
+- ציון חדשנות = ממוצע 4 רכיבים (1–10)
+
+צור JSON במבנה הבא בדיוק:
+
+{"meta":{"project_name":"","subtitle":"","responsible":"","date":"","organization":"","overview_cards":[{"icon":"👤","title":"אחראי פרויקט","content":""},{"icon":"🏢","title":"ארגון","content":""},{"icon":"🌍","title":"היקף הפרויקט","content":""},{"icon":"📅","title":"לוח זמנים","content":""},{"icon":"🚀","title":"סוג החדשנות","content":""},{"icon":"📋","title":"סטטוס רגולטורי","content":""}]},"goals":[{"title":"מטרה 1: שם","description":"פירוט"},{"title":"מטרה 2: שם","description":"פירוט"},{"title":"מטרה 3: שם","description":"פירוט"}],"deliverables":[{"title":"תוצר 1","description":""},{"title":"תוצר 2","description":""}],"risks":[{"title":"","severity":"very-high","severity_label":"חומרה גבוהה מאוד","probability":9,"damage":9,"score":81,"description":"(נגזר ממטרה 1: שם)","impacts":["","",""],"opportunities":["",""]}],"strategies":[{"title":"אסטרטגיה 1","description":"","items":[{"title":"","description":"","badge":"","badge_type":"timeline"},{"title":"מדד הצלחה","description":"","badge":"KPI","badge_type":"kpi"}]}],"innovation_regulation":{"title":"","description":"","rri_statement":"","committee_recommendation":""},"innovation":{"score":7.0,"label":"","description":"","components":[{"score":6,"title":"השפעה פדגוגית","description":""},{"score":7,"title":"מורכבות טכנולוגית","description":""},{"score":7,"title":"שינוי ארגוני","description":""},{"score":8,"title":"סיכון טכנולוגי","description":""}]},"regulation_table":[{"requirement":"","requirement_detail":"","status":"dev","status_label":"בפיתוח","action":""}],"executive_summary":{"cards":[{"title":"📊 רמת חדשנות","content":""},{"title":"🔐 הסיכון הגדול","content":""},{"title":"⚠️ רמת סיכון כוללת","content":""}],"recommendations":[{"title":"המלצה 1","description":""},{"title":"המלצה 2","description":""},{"title":"המלצה 3","description":""}],"footer_note":""},"footer":{"main":"","sources":"מבוסס על: חוזר מנכ\\"ל לאסדרת חדשנות | עקרונות RRI | חוק לימוד חובה","credit":"ד\\"ר אסף אוזן"}}
+
+ערכים לשדה status: full/partial/dev/improve
+ערכים לשדה severity: very-high/high/medium/low
+לכל סיכון — הוסף שדה source עם ציטוט קצר של המקור הרגולטורי (לדוג': "חוזר מנכ\"ל לאסדרת חדשנות" / "חוק לימוד חובה, תש\"ט–1949" / "אופק חדש – פיתוח מקצועי")
+
+כעת נתח את מסמך התפיסה הבא וצא JSON בלבד:
+
+`;
+
+/* ═══ DEMO DATA ═══ */
+const DEMO_DATA = {"meta":{"project_name":"מרכזי כשירויות STEM אינטגרטיביים, רשותיים","subtitle":"תשתית STEM רשותית","responsible":"משרד החינוך והרשות המקומית — אחריות משותפת","date":"אפריל 2026","organization":"משרד החינוך ורשויות מקומיות","overview_cards":[{"icon":"👤","title":"אחראי פרויקט","content":"משרד החינוך והרשות המקומית — אחריות משותפת להפעלה, פיקוח והטמעה"},{"icon":"🏢","title":"ארגון","content":"משרד החינוך, רשויות מקומיות, בתי ספר, שותפי אקדמיה, תעשייה וקהילה"},{"icon":"🌍","title":"היקף הפרויקט","content":"תלמידים, צוותי חינוך, קהילה ושותפים; מודל רשותי או אזורי; הפעלה לאורך יום הלמידה, אחר הצהריים והקהילה"},{"icon":"📅","title":"לוח זמנים","content":"גיבוש צורך וחזון, מיפוי שותפים, תכנון פדגוגי ותפעולי, גיוס והכשרת צוות, הפעלה מדורגת"},{"icon":"🚀","title":"סוג החדשנות","content":"מרכז למידה היברידי, רב-תחומי, מבוסס חקר, עשייה, טכנולוגיות קצה ושותפויות"},{"icon":"📋","title":"סטטוס רגולטורי","content":"נדרש מסלול אסדרה ייעודי הכולל סטנדרט מינימום, פיקוח פדגוגי, בטיחות, נגישות ומדידה"}]},"goals":[{"title":"מטרה 1: פיתוח כשירויות STEM לתלמידים","description":"פיתוח כשירויות מדעיות, טכנולוגיות, הנדסיות ומתמטיות באופן אינטגרטיבי, באמצעות למידה פעילה, חקר, פרויקטים ופתרון בעיות."},{"title":"מטרה 2: חיזוק צוותי חינוך והטמעת פדגוגיה עדכנית","description":"יצירת מרחב התנסות ופיתוח מקצועי לצוותי חינוך, קידום הוראה בין-תחומית וחשיפה לכלים וטכנולוגיות חדשות."},{"title":"מטרה 3: בניית אקוסיסטם רשותי נגיש ורציף","description":"חיבור בין חינוך פורמלי, בלתי פורמלי וקהילתי, הרחבת הזדמנויות לתלמידים וצמצום חסמים מגדריים וחברתיים."}],"deliverables":[{"title":"תפיסה ושפה משותפת","description":"הגדרה מוסכמת של מרכז STEM רשותי, ייעודו ועקרונות הפעולה הפדגוגיים."},{"title":"מודל הפעלה פדגוגי-רשותי","description":"מסגרת פעולה המחברת תלמידים, צוותי חינוך, בתי ספר, רשות וקהילה."},{"title":"מערכת מדידה ושיפור מתמיד","description":"כלי מעקב אחר השתתפות, איכות למידה ויישום בבתי הספר."}],"risks":[{"title":"פער בין חזון פדגוגי ליישום בפועל","severity":"high","severity_label":"חומרה גבוהה","probability":8,"damage":9,"score":72,"description":"מרכזים עלולים להצהיר על חדשנות אך לפעול כאוסף פעילויות נקודתיות ללא סטנדרט ופיקוח (נגזר ממטרה 1: פיתוח כשירויות STEM).","impacts":["פיתוח חלקי של כשירויות STEM","קושי להוכיח השפעה פדגוגית","שונות גבוהה באיכות בין מרכזים"],"opportunities":["יצירת תו תקן פדגוגי למרכזי STEM","בניית תיק פרקטיקות משותף לכלל המרכזים"],"source":"חוזר מנכ\"ל לאסדרת חדשנות | סטנדרט פדגוגי"},{"title":"חוסר רצף בין המרכז לבתי הספר","severity":"high","severity_label":"חומרה גבוהה","probability":8,"damage":8,"score":64,"description":"פעילות המרכז עלולה להישאר מנותקת מתוכניות הלימודים ומסלולי ההמשך (נגזר ממטרה 3: אקוסיסטם רשותי).","impacts":["כפילויות בין פעילויות המרכז לבית הספר","פגיעה ברצף ההתפתחות של הלומדים","קושי לשלב מורים בתכנון השוטף"],"opportunities":["הקמת מנגנון תיאום רשותי עם בתי הספר","פיתוח מסלולים רב-שנתיים לפי שכבות גיל"],"source":"חוזר מנכ\"ל: ארגון הלמידה בחינוך העל-יסודי תשפ\"ו"},{"title":"הכשרת צוות בלתי מספקת","severity":"high","severity_label":"חומרה גבוהה","probability":7,"damage":8,"score":56,"description":"ללא מודל הכשרה, הטכנולוגיות לא יהפכו לפרקטיקה פדגוגית איכותית (נגזר ממטרה 2: חיזוק צוותי חינוך).","impacts":["שימוש טכני ולא פדגוגי בציוד","פערי איכות בין מדריכים ומורים","הטמעה מוגבלת בבתי הספר"],"opportunities":["בניית מסלול פיתוח מקצועי ייעודי","יצירת קהילת למידה רשותית לצוותי STEM"],"source":"פיתוח מקצועי – פורטל עובדי הוראה | אופק חדש"},{"title":"אי-הוגנות בנגישות ובהשתתפות","severity":"high","severity_label":"חומרה גבוהה","probability":7,"damage":9,"score":63,"description":"המרכז עלול לשרת בעיקר תלמידים חזקים במקום להרחיב הזדמנויות (נגזר ממטרה 3: אקוסיסטם רשותי).","impacts":["העמקת פערי השתתפות ב-STEM","פגיעה באמון הציבורי במרכז","החמצת אוכלוסיות שאינן מזוהות עם מדע"],"opportunities":["קביעת מדדי נגישות והשתתפות מגוונת","פיתוח מסלולי כניסה פתוחים לצד מסלולי עומק"],"source":"חוק לימוד חובה, תש\"ט–1949 | חוק חינוך ממלכתי, 1953"},{"title":"שותפויות חיצוניות ללא גבולות רגולטוריים","severity":"medium","severity_label":"חומרה בינונית","probability":6,"damage":8,"score":48,"description":"מעורבות תעשייה ואקדמיה עלולה ליצור השפעה לא מבוקרת על תוכן ופרטיות (נגזר ממטרה 3: אקוסיסטם רשותי).","impacts":["טשטוש אחריות פדגוגית","חשש להטיות בתכנים","סיכון לעמידה חלקית בדרישות פרטיות"],"opportunities":["הסכמי שותפות מחייבים עם גבולות פדגוגיים","ועדת היגוי רשותית לאישור תכנים"],"source":"חדשנות אחראית ושימוש בכלי בינה מלאכותית בחינוך (2025)"}],"strategies":[{"title":"אסטרטגיה 1 — סטנדרט פדגוגי ותו תקן","description":"הגדרת ליבה מחייבת למרכזי STEM, לצד התאמה מקומית גמישה לכל רשות.","items":[{"title":"גיבוש מסמך סטנדרט","description":"הגדרת דרישות מינימום לתוכן, בטיחות, נגישות, הכשרה ומדידה.","badge":"לפני הפעלה","badge_type":"timeline"},{"title":"אישור תוכנית מרכז","description":"כל מרכז יגיש תוכנית שנתית הכוללת מסלולי למידה ומדדי הצלחה.","badge":"תנאי להפעלה","badge_type":"timeline"},{"title":"מדד הצלחה","description":"כל מרכז מציג תיק פעילויות מאושר ומנגנון משוב תקופתי.","badge":"KPI","badge_type":"kpi"}]},{"title":"אסטרטגיה 2 — רצף למידה ותיאום עם בתי הספר","description":"יצירת מנגנון קבוע המחבר את המרכז לתוכניות הלימודים ולמסלולי המשך.","items":[{"title":"מיפוי שכבות ותוכניות","description":"מיפוי שכבות הגיל, תחומי הדעת ומסלולי ההמשך בבתי הספר.","badge":"שלב תכנון","badge_type":"timeline"},{"title":"ועדת תיאום פדגוגית","description":"ועדה הכוללת נציגי רשות, מנהלים, מורים וצוות המרכז — רבעונית.","badge":"רבעוני","badge_type":"timeline"},{"title":"מדד הצלחה","description":"לכל שכבת גיל מוגדר מסלול למידה מצטבר המחובר לתחום דעת.","badge":"KPI","badge_type":"kpi"}]},{"title":"אסטרטגיה 3 — נגישות, הוגנות ושמירה רגולטורית","description":"הבטחת השתתפות מגוונת ושקיפות בתהליכי קבלה והסכמי שותפות.","items":[{"title":"מדיניות קבלה","description":"מסלולים פתוחים עם מעקב אחר ייצוג מגדרי, חברתי וגיאוגרפי.","badge":"תנאי להפעלה","badge_type":"timeline"},{"title":"הסכמי שותפות","description":"כל שותף חיצוני יחתום על הסכם הכולל אחריות פדגוגית ושמירת פרטיות.","badge":"לפני פעילות","badge_type":"timeline"},{"title":"מדד הצלחה","description":"נתוני השתתפות מגוונים, מדדי נגישות ושביעות רצון.","badge":"KPI","badge_type":"kpi"}]}],"innovation_regulation":{"title":"הגדרת רמת החדשנות — מרכז STEM רשותי","description":"החדשנות היא שילוב בין מרחב פיזי, פדגוגיה רב-תחומית, טכנולוגיות מתקדמות ושותפויות. החדשנות אינה בציוד בלבד אלא במודל החיבור בין למידה, קהילה, מורים, תעשייה ואקדמיה.","rri_statement":"עקרונות RRI: שלומות — הטכנולוגיה משרתת למידה; שקיפות — שותפויות מפוקחות; אחריותיות — ועדת היגוי רשותית; מידתיות — היקף מוגדר ומבוקר.","committee_recommendation":"מומלץ לאשר בתנאי שיוגדרו סטנדרט מינימום, מנגנון פיקוח פדגוגי, הכשרת צוות, מדיניות נגישות, הסכמי שותפות מחייבים ומערכת מדידה לפני הרחבה."},"innovation":{"score":7.0,"label":"חדשנות בינונית-גבוהה","description":"השפעה פדגוגית גבוהה ושינוי ארגוני משמעותי, לצד מורכבות רגולטורית וצורך בפיקוח על שימוש בטכנולוגיות ושותפויות.","components":[{"score":8,"title":"השפעה פדגוגית","description":"המרכז משנה למידה מבודדת ללמידה רב-תחומית, התנסותית ומבוססת בעיות."},{"score":7,"title":"מורכבות טכנולוגית","description":"ציוד, סביבות דיגיטליות, בינה מלאכותית ורובוטיקה — טכנולוגיה כאמצעי פדגוגי."},{"score":7,"title":"שינוי ארגוני","description":"תיאום בין משרד החינוך, רשות, בתי ספר, צוותי מרכז, קהילה ושותפים."},{"score":6,"title":"סיכון טכנולוגי","description":"הסיכון ניתן לניהול עם גבולות שימוש, פיקוח פדגוגי ומנגנון עדכון."}]},"regulation_table":[{"requirement":"סטנדרט מינימום למרכז STEM","requirement_detail":"דרישות בסיס למרחב, ציוד, כוח אדם, תוכנית עבודה ובטיחות.","status":"dev","status_label":"בפיתוח","action":"משרד החינוך יגבש מסמך סטנדרט מחייב לפני אישור הפעלה."},{"requirement":"פיקוח פדגוגי על תוכניות","requirement_detail":"אישור תוכניות למידה, התאמה לגיל וחיבור לתוכניות הלימודים.","status":"partial","status_label":"עמידה חלקית","action":"להקים ועדת תיאום פדגוגית רשותית שתאשר תוכנית שנתית."},{"requirement":"הכשרת צוות וליווי מקצועי","requirement_detail":"הכשרה מחייבת למדריכים ומורים בחקר, פרויקטים ובטיחות.","status":"improve","status_label":"דורש שיפור","action":"הגדרת מסלול הכשרה ותיעוד השתתפות לכל בעל תפקיד."},{"requirement":"נגישות והוגנות","requirement_detail":"השתתפות מגוונת, מסלולים פתוחים ושקיפות בתהליכי קבלה.","status":"dev","status_label":"בפיתוח","action":"הרשות תפרסם מדיניות השתתפות ותעקוב אחר ייצוג אוכלוסיות."},{"requirement":"הסדרת שותפויות חיצוניות","requirement_detail":"גבולות אחריות לתעשייה, אקדמיה ויזמים — פרטיות והיעדר השפעה מסחרית.","status":"dev","status_label":"בפיתוח","action":"כל שותף יחתום על הסכם פדגוגי-רגולטורי לפני כניסה לפעילות."}],"executive_summary":{"cards":[{"title":"📊 רמת חדשנות","content":"7/10 — חדשנות בינונית-גבוהה הנשענת על פדגוגיה רב-תחומית ושותפויות"},{"title":"🔐 הסיכון הגדול","content":"פער בין חזון פדגוגי ליישום — ציון 72 — פתרון: תו תקן, מדידה ופיקוח"},{"title":"⚠️ רמת סיכון כוללת","content":"4 סיכונים גבוהים, 1 בינוני — ניתן למיתון עם סטנדרט ומנגנוני פיקוח"}],"recommendations":[{"title":"המלצה 1 — למטרה 1: כשירויות STEM","description":"לאשר פעילות תלמידים רק אם כוללת תוצר, בעיה אותנטית, עבודת צוות ומדד למידה ברור."},{"title":"המלצה 2 — למטרה 2: חיזוק צוותים","description":"להפעיל מסלול הכשרה מחייב למדריכים ומורים, כולל קהילת למידה ופיתוח יחידות הוראה."},{"title":"המלצה 3 — למטרה 3: אקוסיסטם רשותי","description":"להקים ועדת היגוי רשותית שתנהל רצף בין בתי הספר, המרכז, הקהילה והשותפים."}],"footer_note":"צעדים מיידיים: (1) גיבוש סטנדרט מינימום פדגוגי | (2) מינוי ועדת תיאום רשותית | (3) בניית מערכת מדידה ונגישות לפני הרחבה"},"footer":{"main":"דוח ניהול סיכונים — מרכזי STEM רשותיים | משרד החינוך ורשויות מקומיות | אפריל 2026","sources":"מבוסס על: חוזר מנכ\"ל לאסדרת חדשנות | עקרונות RRI | חוק לימוד חובה | אופק חדש","credit":"ד\"ר אסף אוזן"}};
+
+function loadDemo() {
+  document.getElementById('wizard').style.display = 'none';
+  document.getElementById('reportSection').style.display = 'block';
+  renderReport(DEMO_DATA);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  showToast('✅ דוח לדוגמה נטען — מרכזי STEM רשותיים');
+}
+
+/* ═══ WIZARD LOGIC ═══ */
+function handleStepA() {
+  const doc = document.getElementById('docInput').value.trim();
+  if (!doc) {
+    const ta = document.getElementById('docInput');
+    ta.style.borderColor = '#e74c3c';
+    ta.focus();
+    return;
+  }
+  const full = EZRA_PROMPT + doc;
+  const copy = txt => navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject();
+  copy(full).catch(() => {
+    const t = document.createElement('textarea');
+    t.value = full; t.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(t); t.select(); document.execCommand('copy');
+    document.body.removeChild(t);
+  });
+  document.getElementById('stepA').style.display = 'none';
+  document.getElementById('stepB').style.display = 'block';
+  document.getElementById('copiedMsg').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function handleStepB() {
+  const raw = document.getElementById('aiOutput').value.trim();
+  if (!raw) { showErr('אנא הדבק את התוצאה מה-AI'); return; }
+
+  let jsonStr = raw;
+  const fence = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) { jsonStr = fence[1]; }
+  else {
+    const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+    if (s !== -1 && e !== -1) jsonStr = raw.slice(s, e + 1);
+  }
+
+  let data;
+  try { data = JSON.parse(jsonStr); }
+  catch(err) {
+    showErr('לא הצלחתי לזהות תוצאה תקינה. נסה לכתוב ל-AI: "החזר JSON בלבד, ללא הסברים"');
+    return;
+  }
+
+  document.getElementById('wizard').style.display = 'none';
+  document.getElementById('reportSection').style.display = 'block';
+  renderReport(data);
+  window.scrollTo({ top: 0 });
+}
+
+function goBack() {
+  document.getElementById('stepB').style.display = 'none';
+  document.getElementById('stepA').style.display = 'block';
+}
+
+function startOver() {
+  document.getElementById('reportSection').style.display = 'none';
+  document.getElementById('wizard').style.display = 'block';
+  document.getElementById('stepB').style.display = 'none';
+  document.getElementById('stepA').style.display = 'block';
+  document.getElementById('aiOutput').value = '';
+  window.scrollTo({ top: 0 });
+}
+
+function showErr(msg) {
+  const el = document.getElementById('errorBox');
+  el.textContent = '❌ ' + msg;
+  el.style.display = 'block';
+}
+
+['docInput','aiOutput'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', function() {
+    this.classList.toggle('filled', this.value.trim().length > 10);
+    this.style.borderColor = '';
+    document.getElementById('errorBox').style.display = 'none';
+  });
+  el.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      id === 'docInput' ? handleStepA() : handleStepB();
+    }
+  });
+});
+
+/* ═══ REPORT TOOLBAR ═══ */
+let editing = false;
+function toggleEdit() {
+  editing = !editing;
+  document.querySelectorAll('.editable').forEach(el => el.setAttribute('contenteditable', editing));
+  const btn = document.getElementById('editBtn');
+  btn.textContent = editing ? '💾 סיים עריכה' : '🎨 עריכה';
+  btn.classList.toggle('active', editing);
+  showToast(editing ? '✅ מצב עריכה הופעל' : '💾 השינויים נשמרו');
+}
+
+function saveHTML() {
+  try {
+    const a = document.createElement('a');
+    a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(document.documentElement.outerHTML);
+    a.download = 'risk_report_' + Date.now() + '.html';
+    a.click();
+    showToast('✅ הקובץ נשמר!');
+  } catch(e) { alert('לחץ Ctrl+S לשמירה ידנית'); }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+window.addEventListener('scroll', () => {
+  document.getElementById('backTop').classList.toggle('visible', window.scrollY > 400);
+});
+
+/* ═══ RENDER ENGINE ═══ */
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || ''; return d.innerHTML;
+}
+function statusBadge(st, lbl) {
+  const m = {full:'b-full',partial:'b-partial',dev:'b-dev',improve:'b-improve'};
+  return `<span class="${m[st]||'b-dev'}">${esc(lbl)}</span>`;
+}
+
+function renderReport(d) {
+  const nav = [
+    ['#rp','📋 פרויקט'],['#rr','⚠️ סיכונים'],['#rs','📈 התמודדות'],
+    ['#ri','🚀 אסדרה'],['#rl','📊 חדשנות'],['#rg','✅ רגולציה'],['#re','📝 סיכום'],['#rsrc','📚 מקורות']
+  ].map(([h,l])=>`<li><a href="${h}" class="r-nav-link">${l}</a></li>`).join('');
+
+  const cards = (d.meta.overview_cards||[]).map(c=>`
+    <div class="r-card"><h4>${esc(c.icon)} <span class="editable">${esc(c.title)}</span></h4>
+    <p class="editable">${esc(c.content)}</p></div>`).join('');
+
+  const goals = (d.goals||[]).map((g,i)=>`
+    <div class="r-item editable"><strong>${i+1}. ${esc(g.title)}</strong><br>${esc(g.description)}</div>`).join('');
+
+  const dels = (d.deliverables||[]).map(dv=>`
+    <div class="r-item editable"><strong>${esc(dv.title)}</strong> — ${esc(dv.description)}</div>`).join('');
+
+  const cnt = {vh:0,h:0,m:0,l:0};
+  (d.risks||[]).forEach(r=>{
+    if(r.severity==='very-high')cnt.vh++;
+    else if(r.severity==='high')cnt.h++;
+    else if(r.severity==='medium')cnt.m++;
+    else cnt.l++;
+  });
+
+  const riskCards = (d.risks||[]).map(r=>`
+    <div class="r-risk-card risk-${r.severity}">
+      <div class="r-risk-head">
+        <div class="r-risk-title editable">${esc(r.title)}</div>
+        <div class="r-sev-badge sev-${r.severity} editable">${esc(r.severity_label)}</div>
+      </div>
+      <div class="r-metrics">
+        <div class="r-metric"><div class="r-metric-val editable">${r.probability}</div><div class="r-metric-lbl">הסתברות</div></div>
+        <div class="r-metric"><div class="r-metric-val editable">${r.damage}</div><div class="r-metric-lbl">עוצמת נזק</div></div>
+        <div class="r-metric"><div class="r-metric-val editable">${r.score}</div><div class="r-metric-lbl">דרגת חומרה</div></div>
+      </div>
+      <div class="r-desc editable">${esc(r.description)}</div>
+      ${r.source ? `<div class="r-src editable">📌 <strong>מקור:</strong> ${esc(r.source)}</div>` : ''}
+      <div class="r-impact">
+        <div class="r-impact-title">השלכות:</div>
+        <ul class="r-list-ul impacts">${(r.impacts||[]).map(i=>`<li class="editable">${esc(i)}</li>`).join('')}</ul>
+        <div class="r-opp-title">הזדמנויות:</div>
+        <ul class="r-list-ul opps">${(r.opportunities||[]).map(o=>`<li class="editable">${esc(o)}</li>`).join('')}</ul>
+      </div>
+    </div>`).join('');
+
+  const strats = (d.strategies||[]).map(s=>`
+    <div class="r-strat-card">
+      <div class="r-strat-head editable">${esc(s.title)}</div>
+      <div class="r-strat-body">
+        <p class="editable" style="color:#34495e;margin-bottom:14px">${esc(s.description)}</p>
+        <div class="r-strat-grid">${(s.items||[]).map(it=>`
+          <div class="r-strat-item">
+            <h5 class="editable">${esc(it.title)}</h5>
+            <p class="editable">${esc(it.description)}</p>
+            <span class="${it.badge_type==='kpi'?'r-badge-kpi':'r-badge-time'}">${esc(it.badge)}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`).join('');
+
+  const ir = d.innovation_regulation||{};
+  const inv = d.innovation||{};
+  const comps = (inv.components||[]).map(c=>`
+    <div class="r-comp-card">
+      <div class="r-comp-score editable">${c.score}</div>
+      <div class="r-comp-title editable">${esc(c.title)}</div>
+      <p class="editable" style="opacity:.85;font-size:.9em">${esc(c.description)}</p>
+    </div>`).join('');
+
+  const regRows = (d.regulation_table||[]).map(r=>`
+    <tr>
+      <td class="editable"><strong>${esc(r.requirement)}</strong><br><small>${esc(r.requirement_detail)}</small></td>
+      <td>${statusBadge(r.status,r.status_label)}</td>
+      <td class="editable">${esc(r.action)}</td>
+    </tr>`).join('');
+
+  const ex = d.executive_summary||{};
+  const exCards = (ex.cards||[]).map(c=>`
+    <div class="r-exec-card"><h4>${esc(c.title)}</h4><p class="editable">${esc(c.content)}</p></div>`).join('');
+  const recs = (ex.recommendations||[]).map((r,i)=>`
+    <div class="r-rec-item editable"><strong>${i+1}. ${esc(r.title)}</strong><br>${esc(r.description)}</div>`).join('');
+
+  const f = d.footer||{};
+
+  document.getElementById('reportApp').innerHTML = `
+    <div class="r-header">
+      <h1 class="editable">⚠️ דוח ניהול סיכונים</h1>
+      <div class="sub editable">${esc(d.meta.project_name)} — ${esc(d.meta.subtitle)}</div>
+      <div class="badge editable">אחראי: ${esc(d.meta.responsible)} • ${esc(d.meta.date)}</div>
+    </div>
+    <nav class="r-nav"><ul>${nav}</ul></nav>
+
+    <section id="rp" class="r-section">
+      <div class="r-sec-header editable">📋 הגדרת הפרויקט</div>
+      <div class="r-overview">
+        <h2 style="text-align:center;color:#2c3e50;font-size:1.8em;margin-bottom:18px" class="editable">פרטי הפרויקט</h2>
+        <div class="r-grid">${cards}</div>
+      </div>
+      <div class="r-list-section"><h3 class="editable">🎯 מטרות הפרויקט</h3>${goals}</div>
+      <div class="r-list-section"><h3 class="editable">📋 תוצרים מצופים</h3>${dels}</div>
+    </section>
+
+    <section id="rr" class="r-section">
+      <div class="r-sec-header editable">⚠️ ניהול סיכונים</div>
+      <div class="r-risks">
+        <div class="r-risk-summary">
+          <div class="r-sum-card"><div class="r-sum-num c-vh editable">${cnt.vh}</div><div>גבוהה מאוד</div></div>
+          <div class="r-sum-card"><div class="r-sum-num c-h editable">${cnt.h}</div><div>גבוהה</div></div>
+          <div class="r-sum-card"><div class="r-sum-num c-m editable">${cnt.m}</div><div>בינונית</div></div>
+          <div class="r-sum-card"><div class="r-sum-num c-l editable">${cnt.l}</div><div>נמוכה</div></div>
+        </div>
+        <div class="r-risks-grid">${riskCards}</div>
+      </div>
+    </section>
+
+    <section id="rs" class="r-section">
+      <div class="r-sec-header editable">📈 תוכנית התמודדות</div>
+      <div class="r-strategies">${strats}</div>
+    </section>
+
+    <section id="ri" class="r-section">
+      <div class="r-sec-header editable">🚀 אסדרת חדשנות</div>
+      <div class="r-innov-reg">
+        <div class="r-white-box">
+          <h3 style="color:#8e44ad;margin-bottom:12px" class="editable">${esc(ir.title)}</h3>
+          <p class="editable" style="color:#34495e;line-height:1.8">${esc(ir.description)}</p>
+          <p class="editable" style="color:#34495e;line-height:1.8;margin-top:10px">${esc(ir.rri_statement)}</p>
+        </div>
+        <div class="r-committee-box">
+          <h4>🏛️ המלצת ועדת המשנה</h4>
+          <p class="editable" style="color:#34495e;line-height:1.8">${esc(ir.committee_recommendation)}</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="rl" class="r-section">
+      <div class="r-sec-header editable">📊 רמת החדשנות</div>
+      <div class="r-innov-level">
+        <h2 class="editable" style="font-size:1.4em;margin-bottom:4px">ציון חדשנות כולל</h2>
+        <div class="r-innov-score editable">${inv.score}</div>
+        <div class="r-innov-label editable">/ 10 — ${esc(inv.label)}</div>
+        <p class="editable" style="opacity:.85;max-width:600px;margin:0 auto 16px">${esc(inv.description)}</p>
+        <div class="r-innov-comps">${comps}</div>
+      </div>
+    </section>
+
+    <section id="rg" class="r-section">
+      <div class="r-sec-header editable">✅ התאמה לדרישות אסדרה</div>
+      <div class="r-reg">
+        <table class="r-reg-table">
+          <thead><tr><th>דרישת אסדרה</th><th>סטטוס</th><th>פעולה נדרשת</th></tr></thead>
+          <tbody>${regRows}</tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="re" class="r-section">
+      <div class="r-sec-header editable">📝 סיכום מנהלים והמלצות</div>
+      <div class="r-exec">
+        <h2 style="text-align:center;color:#f39c12;margin-bottom:18px" class="editable">סיכום ביצועי</h2>
+        <div class="r-exec-grid">${exCards}</div>
+        <div class="r-recs-box">
+          <h3>💡 המלצות מרכזיות</h3>${recs}
+        </div>
+        ${ex.footer_note?`<p class="editable" style="text-align:center;margin-top:20px;opacity:.75;font-size:.9em">${esc(ex.footer_note)}</p>`:''}
+      </div>
+    </section>
+
+    <section id="rsrc" class="r-section">
+      <div class="r-sec-header" style="background:linear-gradient(135deg,#16a085,#1abc9c)">📚 מקורות ידע</div>
+      <div class="r-sources">
+        <p style="text-align:center;font-size:1em;color:rgba(255,255,255,.8);max-width:700px;margin:0 auto 10px">הדוח מבוסס על מאגר ידע מוסמך ועדכני. כל ניתוח, סיכון והמלצה מתבסס על המקורות המפורטים להלן.</p>
+        <div class="r-src-grid">
+          <div class="r-src-cat">
+            <div class="r-src-cat-title">🏛️ חוקים ורגולציית חינוך</div>
+            <div class="r-src-item"><a href="https://innovate.education.gov.il/" target="_blank"><span>📌</span>חוזר מנכ"ל לאסדרת חדשנות</a></div>
+            <div class="r-src-item"><a href="https://www.nevo.co.il/law_html/law01/053_001.htm" target="_blank"><span>⚖️</span>חוק לימוד חובה, תש"ט–1949</a></div>
+            <div class="r-src-item"><a href="https://edu.gov.il/owlHtml/sites/MazkirutPed/ChozreMankal/" target="_blank"><span>📂</span>מאגר חוזרי מנכ"ל</a></div>
+            <div class="r-src-item"><a href="https://www.nevo.co.il/law_html/law01/058_001.htm" target="_blank"><span>⚖️</span>חוק חינוך ממלכתי, 1953</a></div>
+            <div class="r-src-item"><a href="https://edu.gov.il/minhalpedagogy/law" target="_blank"><span>📋</span>חוקי חינוך כלליים</a></div>
+            <div class="r-src-item"><a href="https://edu.gov.il/minhalpedagogy/shaat-chinuch/core" target="_blank"><span>📖</span>תוכנית ליבה לשעת חינוך</a></div>
+          </div>
+          <div class="r-src-cat">
+            <div class="r-src-cat-title">🤖 חדשנות אחראית ובינה מלאכותית</div>
+            <div class="r-src-item"><a href="https://innovate.education.gov.il/AI" target="_blank"><span>🧠</span>שימוש בכלי בינה מלאכותית בחינוך (2025)</a></div>
+            <div class="r-src-item"><a href="https://innovate.education.gov.il/regulation-map" target="_blank"><span>🗺️</span>מפת התמצאות לאסדרת חדשנות</a></div>
+          </div>
+          <div class="r-src-cat">
+            <div class="r-src-cat-title">📊 תכנון, בקרה ושכר</div>
+            <div class="r-src-item"><a href="https://harhayeda.gov.il/media/4wqogjpb/20241208-tasc-di-cio-methodology-for-publishing-v01.pdf" target="_blank"><span>📄</span>מדריך לתכנון ובקרה (CIO, 2024)</a></div>
+            <div class="r-src-item"><a href="https://www.irgun-morim.org.il/oz-letmura" target="_blank"><span>📝</span>עוז לתמורה – ארגון המורים</a></div>
+            <div class="r-src-item"><a href="https://www.edu.gov.il/minhalpedagogy/ofek-hadash" target="_blank"><span>📝</span>אופק חדש – הסתדרות המורים</a></div>
+          </div>
+          <div class="r-src-cat">
+            <div class="r-src-cat-title">📅 ארגון לימודים ופיתוח מקצועי</div>
+            <div class="r-src-item"><a href="https://edu.gov.il/owlHtml/sites/MazkirutPed/ChozreMankal/Pages/tashpav-1-11.aspx" target="_blank"><span>🗓️</span>ארגון הלמידה בחינוך העל-יסודי תשפ"ו</a></div>
+            <div class="r-src-item"><a href="https://teachers.education.gov.il/professional-development" target="_blank"><span>🎓</span>פיתוח מקצועי – פורטל עובדי הוראה</a></div>
+            <div class="r-src-item"><a href="https://www.edu.gov.il/minhalpedagogy/histadrut" target="_blank"><span>🏫</span>הנחיות הסתדרות המורים</a></div>
+            <div class="r-src-item"><a href="https://edu.gov.il/minhalpedagogy/curricula/textbooks" target="_blank"><span>📚</span>מאגר ספרי לימוד מאושרים</a></div>
+          </div>
+        </div>
+        <div class="r-src-note"><strong>📌 הערת שימוש:</strong> כל ציטוט רגולטורי בסעיפי הסיכונים וההמלצות מתבסס על מקורות אלו. לבדיקת עדכניות המדיניות: <a href="https://edu.gov.il" target="_blank" style="color:#1abc9c">edu.gov.il</a></div>
+      </div>
+    </section>
+
+    <div class="r-footer">
+      <p class="editable">${esc(f.main)}</p>
+      <p style="margin-top:6px;opacity:.8">${esc(f.sources)}</p>
+      <p style="margin-top:10px"><strong>פיתוח ועיצוב: ${esc(f.credit)}</strong></p>
+    </div>`;
+
+  document.title = `דוח ניהול סיכונים — ${d.meta.project_name}`;
+
+  // active nav
+  const secs = document.querySelectorAll('.r-section');
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    secs.forEach(s => { if (window.scrollY >= s.offsetTop - 80) cur = s.id; });
+    document.querySelectorAll('.r-nav-link').forEach(a =>
+      a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>דוח ניהול סיכונים — EZRA</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #2c3e50;
+}
+.container {
+  max-width: 1200px; margin: 0 auto;
+  background: rgba(255,255,255,0.98);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, #1a3a5c 0%, #2c3e50 100%);
+  color: white; padding: 50px 40px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.header::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="g" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23g)"/></svg>');
+  opacity: 0.3;
+}
+.header h1 { font-size: 2.8em; margin-bottom: 12px; position: relative; z-index: 1; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+.header .subtitle { font-size: 1.3em; opacity: 0.9; position: relative; z-index: 1; margin-bottom: 8px; }
+.date-badge {
+  display: inline-block; background: rgba(255,255,255,0.2);
+  padding: 8px 18px; border-radius: 20px; font-size: 0.9em; margin-top: 12px;
+  backdrop-filter: blur(10px); position: relative; z-index: 1;
+}
+.edit-toggle {
+  position: fixed; top: 20px; left: 20px;
+  background: #3498db; color: white; border: none;
+  padding: 13px 22px; border-radius: 25px; cursor: pointer;
+  font-size: 0.95em; font-weight: bold;
+  box-shadow: 0 4px 15px rgba(52,152,219,0.4); z-index: 1000; transition: all 0.3s ease;
+}
+.edit-toggle:hover { background: #2980b9; transform: translateY(-2px); }
+.edit-toggle.active { background: #27ae60; }
+.pdf-export {
+  position: fixed; top: 75px; left: 20px;
+  background: #e74c3c; color: white; border: none;
+  padding: 13px 22px; border-radius: 25px; cursor: pointer;
+  font-size: 0.95em; font-weight: bold;
+  box-shadow: 0 4px 15px rgba(231,76,60,0.4); z-index: 1000; transition: all 0.3s ease;
+}
+.pdf-export:hover { background: #c0392b; transform: translateY(-2px); }
+.html-export {
+  position: fixed; top: 130px; left: 20px;
+  background: #8e44ad; color: white; border: none;
+  padding: 13px 22px; border-radius: 25px; cursor: pointer;
+  font-size: 0.95em; font-weight: bold;
+  box-shadow: 0 4px 15px rgba(142,68,173,0.4); z-index: 1000; transition: all 0.3s ease;
+}
+.html-export:hover { background: #7d3c98; transform: translateY(-2px); }
+.success-message {
+  position: fixed; top: 100px; right: 20px;
+  background: #27ae60; color: white;
+  padding: 15px 25px; border-radius: 10px; font-weight: bold;
+  opacity: 0; transform: translateX(400px); transition: all 0.3s ease; z-index: 1001;
+}
+.success-message.show { opacity: 1; transform: translateX(0); }
+.editable { padding: 3px; border-radius: 3px; transition: all 0.3s ease; }
+.editable[contenteditable="true"] {
+  background: rgba(52,152,219,0.1); border: 2px dashed #3498db;
+  outline: none; cursor: text; padding: 5px;
+}
+.nav-menu {
+  position: sticky; top: 0;
+  background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+  z-index: 999; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.nav-links { display: flex; justify-content: center; padding: 0; list-style: none; margin: 0; }
+.nav-links li { flex: 1; }
+.nav-links a {
+  display: block; padding: 16px 10px; color: #bdc3c7;
+  text-decoration: none; text-align: center; font-weight: 600; font-size: 0.82em;
+  transition: all 0.3s ease; border-left: 1px solid #2c3e50; position: relative;
+}
+.nav-links li:first-child a { border-left: none; }
+.nav-links a:hover, .nav-links a.active { background: #2c3e50; color: white; }
+.section { scroll-margin-top: 60px; }
+.section-header {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white; padding: 25px 40px; font-size: 2em; font-weight: bold;
+  text-align: center; position: relative;
+}
+.section-header::after {
+  content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%);
+  width: 70px; height: 5px; background: rgba(255,255,255,0.8); border-radius: 3px;
+}
+.project-overview { padding: 40px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); }
+.overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; margin-top: 25px; }
+.overview-card {
+  background: white; padding: 22px; border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08); border-top: 4px solid #3498db; transition: all 0.3s ease;
+}
+.overview-card:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(0,0,0,0.12); }
+.overview-card h4 { color: #2c3e50; margin-bottom: 10px; font-size: 1.1em; display: flex; align-items: center; gap: 8px; }
+.goals-section { background: white; margin: 28px 40px; padding: 28px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+.goals-section h3 { color: #2c3e50; margin-bottom: 18px; font-size: 1.4em; text-align: center; }
+.goal-item, .deliverable-item {
+  background: #f8f9fa; margin: 12px 0; padding: 18px; border-radius: 10px;
+  border-right: 4px solid #27ae60; transition: all 0.3s ease;
+}
+.goal-item:hover, .deliverable-item:hover { background: #e9ecef; transform: translateX(-5px); }
+.risks-container { padding: 40px; background: white; }
+.risk-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 18px; margin-bottom: 35px; }
+.summary-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 22px; border-radius: 15px; text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+.summary-number { font-size: 3em; font-weight: bold; margin-bottom: 8px; }
+.col-very-high { color: #e74c3c; }
+.col-high { color: #f39c12; }
+.col-medium { color: #e8b800; }
+.col-low { color: #27ae60; }
+.risks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 25px; margin-top: 28px; }
+.risk-card {
+  background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  padding: 28px; transition: all 0.3s ease; border-top: 6px solid; position: relative; overflow: hidden;
+}
+.risk-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+.risk-very-high { border-top-color: #e74c3c; }
+.risk-high { border-top-color: #f39c12; }
+.risk-medium { border-top-color: #e8b800; }
+.risk-low { border-top-color: #27ae60; }
+.risk-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; gap: 12px; }
+.risk-title { font-size: 1.2em; font-weight: bold; color: #2c3e50; flex: 1; }
+.risk-severity { padding: 7px 14px; border-radius: 25px; font-size: 0.8em; font-weight: bold; color: white; white-space: nowrap; }
+.sev-very-high { background: #e74c3c; }
+.sev-high { background: #f39c12; }
+.sev-medium { background: #e8b800; color: #2c3e50; }
+.sev-low { background: #27ae60; }
+.risk-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 18px 0; text-align: center; }
+.metric { background: #f8f9fa; padding: 14px; border-radius: 10px; }
+.metric-value { font-size: 1.7em; font-weight: bold; color: #2c3e50; }
+.metric-label { font-size: 0.85em; color: #7f8c8d; margin-top: 4px; }
+.risk-description {
+  color: #34495e; line-height: 1.7; background: #f8f9fa;
+  padding: 18px; border-radius: 10px; margin-top: 14px; border-right: 4px solid #bdc3c7;
+}
+.risk-impact { margin-top: 18px; }
+.impact-title { font-weight: bold; color: #e74c3c; margin-bottom: 8px; }
+.impact-list { list-style: none; padding-right: 12px; }
+.impact-list li { padding: 7px 0; border-bottom: 1px solid #ecf0f1; }
+.impact-list li::before { content: '⚠️'; margin-left: 8px; }
+.opportunity-title { font-weight: bold; color: #27ae60; margin-top: 18px; margin-bottom: 8px; }
+.opportunity-list { list-style: none; padding-right: 12px; }
+.opportunity-list li { padding: 7px 0; border-bottom: 1px solid #ecf0f1; }
+.opportunity-list li::before { content: '✅'; margin-left: 8px; }
+.strategies-section { padding: 50px 40px; background: linear-gradient(135deg, #ecf0f1 0%, #dfe6e9 100%); }
+.strategy-card {
+  background: white; margin: 28px 0; border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; transition: all 0.3s ease;
+}
+.strategy-card:hover { transform: translateY(-5px); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+.strategy-header {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  color: white; padding: 22px 28px; font-weight: bold; font-size: 1.25em;
+}
+.strategy-content { padding: 28px; }
+.strategy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 18px; }
+.strategy-item {
+  background: #f8f9fa; padding: 18px; border-radius: 12px;
+  border-right: 4px solid #27ae60; transition: all 0.3s ease;
+}
+.strategy-item:hover { background: #e9ecef; transform: translateX(-3px); }
+.strategy-item h5 { color: #27ae60; margin-bottom: 7px; font-size: 1.05em; }
+.timeline-badge {
+  display: inline-block; background: #3498db; color: white;
+  padding: 4px 12px; border-radius: 15px; font-size: 0.8em; margin-top: 8px;
+}
+.kpi-badge {
+  display: inline-block; background: #8e44ad; color: white;
+  padding: 4px 12px; border-radius: 15px; font-size: 0.8em; margin-top: 5px;
+}
+.innovation-reg-section { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 50px 40px; }
+.summary-box {
+  background: white; padding: 28px; border-radius: 15px; margin: 25px 0;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+.committee-box {
+  background: #f0f8ff; padding: 22px; border-radius: 15px; margin-top: 25px;
+  border-left: 6px solid #3498db; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+.committee-box h4 { color: #34495e; font-size: 1.3em; margin-bottom: 12px; }
+.innovation-section {
+  background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+  color: white; padding: 50px 40px; text-align: center;
+}
+.innovation-score { font-size: 5em; font-weight: bold; margin: 28px 0; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); }
+.innovation-score-label { font-size: 1.4em; opacity: 0.9; margin-top: -15px; margin-bottom: 15px; }
+.innovation-components { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; margin-top: 35px; }
+.component-card {
+  background: rgba(255,255,255,0.15); padding: 22px; border-radius: 15px;
+  backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease;
+}
+.component-card:hover { background: rgba(255,255,255,0.22); transform: translateY(-3px); }
+.component-score { font-size: 2.4em; font-weight: bold; color: #f39c12; margin-bottom: 8px; }
+.component-title { font-size: 1.05em; font-weight: bold; margin-bottom: 8px; }
+.regulation-section { padding: 40px; background: #ecf0f1; }
+.regulation-table { width: 100%; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.08); margin: 18px 0; }
+.regulation-table th, .regulation-table td { padding: 18px; text-align: right; border-bottom: 1px solid #ecf0f1; vertical-align: top; }
+.regulation-table th { background: #34495e; color: white; font-weight: bold; }
+.regulation-table tr:hover { background: #f8f9fa; }
+.badge-full { background: #27ae60; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: bold; display: inline-block; }
+.badge-partial { background: #f39c12; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: bold; display: inline-block; }
+.badge-dev { background: #3498db; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: bold; display: inline-block; }
+.badge-improve { background: #e74c3c; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: bold; display: inline-block; }
+.executive-section { padding: 50px 40px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; }
+.exec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px; margin: 28px 0; }
+.exec-card {
+  background: rgba(255,255,255,0.1); padding: 22px; border-radius: 15px;
+  backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15);
+}
+.exec-card h4 { font-size: 1.1em; margin-bottom: 10px; color: #f39c12; }
+.recommendations-box { background: rgba(255,255,255,0.08); padding: 25px; border-radius: 15px; margin-top: 20px; }
+.recommendations-box h3 { margin-bottom: 18px; font-size: 1.3em; color: #f39c12; }
+.rec-item { background: rgba(255,255,255,0.08); margin: 12px 0; padding: 16px; border-radius: 10px; border-right: 4px solid #f39c12; }
+.footer { background: #1a252f; color: #bdc3c7; text-align: center; padding: 30px; font-size: 0.9em; }
+.footer strong { color: #3498db; }
+.back-to-top {
+  position: fixed; bottom: 30px; left: 30px;
+  background: #3498db; color: white;
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 4px 15px rgba(52,152,219,0.4);
+  transition: all 0.3s ease; z-index: 1000; opacity: 0; transform: translateY(20px); border: none; font-size: 1.3em;
+}
+.back-to-top.visible { opacity: 1; transform: translateY(0); }
+.back-to-top:hover { background: #2980b9; transform: translateY(-3px); }
+html { scroll-behavior: smooth; }
+
+/* ─── PASTE SCREEN ─── */
+.paste-screen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.paste-card {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+  padding: 50px 45px;
+  max-width: 680px; width: 100%;
+  text-align: center;
+}
+.paste-card .logo { font-size: 3em; margin-bottom: 10px; }
+.paste-card h1 { font-size: 2em; color: #2c3e50; margin-bottom: 8px; }
+.paste-card .sub { color: #7f8c8d; margin-bottom: 30px; font-size: 1.05em; }
+.paste-area {
+  width: 100%; min-height: 220px;
+  border: 2px dashed #bdc3c7; border-radius: 14px;
+  padding: 18px; font-size: 0.9em; font-family: monospace;
+  color: #2c3e50; resize: vertical; outline: none;
+  transition: border-color 0.3s;
+  text-align: right; direction: rtl;
+}
+.paste-area:focus { border-color: #3498db; }
+.paste-area.has-content { border-color: #27ae60; background: #f0faf5; }
+.paste-btn {
+  margin-top: 20px; width: 100%;
+  background: linear-gradient(135deg, #27ae60, #1e8449);
+  color: white; border: none; padding: 18px;
+  border-radius: 14px; font-size: 1.15em; font-weight: 700;
+  cursor: pointer; transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(39,174,96,0.35);
+}
+.paste-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(39,174,96,0.45); }
+.paste-btn:disabled { background: #bdc3c7; box-shadow: none; cursor: not-allowed; transform: none; }
+.paste-error {
+  background: #fdf2f2; border: 1px solid #e74c3c; color: #c0392b;
+  border-radius: 10px; padding: 14px 18px; margin-top: 15px;
+  font-size: 0.95em; display: none; text-align: right;
+}
+.paste-hint { color: #95a5a6; font-size: 0.85em; margin-top: 14px; }
+
+@media (max-width: 768px) {
+  .header h1 { font-size: 2em; }
+  .nav-links { flex-direction: column; }
+  .nav-links a { border-left: none; border-bottom: 1px solid #2c3e50; font-size: 0.8em; }
+  .risks-grid, .overview-grid, .innovation-components { grid-template-columns: 1fr; }
+  .innovation-score { font-size: 3.5em; }
+  .risk-header { flex-direction: column; }
+  .risk-metrics { grid-template-columns: 1fr; }
+  .edit-toggle { top: 10px; left: 10px; padding: 10px 16px; font-size: 0.85em; }
+  .pdf-export { top: 60px; left: 10px; padding: 10px 16px; font-size: 0.85em; }
+  .html-export { top: 110px; left: 10px; padding: 10px 16px; font-size: 0.85em; }
+}
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .edit-toggle, .pdf-export, .html-export, .back-to-top, .nav-menu { display: none !important; }
+  body { background: white !important; }
+  .container { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
+  .risk-card, .strategy-card, .overview-card, .summary-box, .goals-section, .committee-box, .component-card { page-break-inside: avoid !important; }
+  @page { margin: 10mm; size: A4; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ שלב א: הכנסת מסמך תפיסה ═══ -->
+<div id="stepA" class="paste-screen">
+  <div class="paste-card">
+    <div class="logo">⚠️</div>
+    <h1>EZRA 5.0</h1>
+    <p class="sub">מחולל דוחות ניהול סיכונים אוטומטי<br><strong>שלב 1 מתוך 2</strong> — הכנס את מסמך התפיסה שלך</p>
+
+    <div style="display:flex;gap:8px;margin-bottom:12px;justify-content:center;">
+      <span style="background:#ebf5fb;color:#2980b9;padding:5px 14px;border-radius:20px;font-size:0.82em;font-weight:600;">Claude</span>
+      <span style="background:#eafaf1;color:#27ae60;padding:5px 14px;border-radius:20px;font-size:0.82em;font-weight:600;">ChatGPT</span>
+      <span style="background:#fef9e7;color:#d4a017;padding:5px 14px;border-radius:20px;font-size:0.82em;font-weight:600;">Gemini</span>
+      <span style="background:#f5eef8;color:#8e44ad;padding:5px 14px;border-radius:20px;font-size:0.82em;font-weight:600;">כל מודל אחר</span>
+    </div>
+
+    <textarea class="paste-area" id="docInput"
+      placeholder="הדבק כאן את מסמך התפיסה של הפרויקט...
+
+ניתן להדביק טקסט חופשי, Word, PDF שהועתק, או כל פורמט אחר."></textarea>
+
+    <button class="paste-btn" onclick="handleStepA()">📋 הכן ושלח ל-AI ←</button>
+    <p class="paste-hint">הפרומפט + המסמך שלך יועתקו לקליפבורד — תדביק בכל AI</p>
+  </div>
+</div>
+
+<!-- ═══ שלב ב: הדבקת תוצאת ה-AI ═══ -->
+<div id="stepB" class="paste-screen" style="display:none;">
+  <div class="paste-card">
+    <div class="logo">🤖</div>
+    <h1>EZRA 5.0</h1>
+    <p class="sub"><strong>שלב 2 מתוך 2</strong> — הדבק את התוצאה מה-AI</p>
+
+    <div id="stepBInstructions" style="background:#eafaf1;border:1px solid #27ae60;border-radius:12px;padding:14px 18px;margin-bottom:16px;text-align:right;font-size:0.95em;color:#1e8449;">
+      ✅ הפרומפט הועתק! עכשיו:<br>
+      1. פתח Claude / ChatGPT / Gemini בטאב חדש<br>
+      2. הדבק (Ctrl+V) ושלח<br>
+      3. העתק את כל התוצאה → חזור לכאן והדבק למטה
+    </div>
+
+    <textarea class="paste-area" id="aiOutput"
+      placeholder="הדבק כאן את התוצאה מה-AI..."></textarea>
+
+    <div class="paste-error" id="pasteError">❌ <span id="errorText"></span></div>
+    <button class="paste-btn" onclick="handleStepB()">✅ צור דוח</button>
+
+    <button onclick="goBackToA()"
+      style="margin-top:12px;width:100%;background:none;border:2px solid #bdc3c7;color:#7f8c8d;padding:12px;border-radius:12px;cursor:pointer;font-size:0.95em;">
+      ← חזור לשלב 1
+    </button>
+    <p class="paste-hint">אף מידע לא נשלח לשרת — הכל רץ על המחשב שלך</p>
+  </div>
+</div>
+
+<!-- ═══ הדוח המוכן ═══ -->
+<div id="reportWrapper" style="display:none;">
+  <div class="container">
+    <button class="edit-toggle" id="editToggle">🎨 התחל עריכה</button>
+    <button class="pdf-export" onclick="window.print()">📄 ייצוא ל-PDF</button>
+    <button class="html-export" id="htmlExport">💾 שמור HTML</button>
+    <button onclick="goBackToA()" style="position:fixed;top:185px;left:20px;background:#95a5a6;color:white;border:none;padding:13px 22px;border-radius:25px;cursor:pointer;font-size:0.95em;font-weight:bold;z-index:1000;">🔄 דוח חדש</button>
+    <div class="success-message" id="successMsg"></div>
+    <button class="back-to-top" id="backToTop">↑</button>
+    <div id="app"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  הדבק כאן את ה-JSON שייצר ה-AI
+// ============================================================
+const REPORT_DATA = {
+  "meta": {
+    "project_name": "שם הפרויקט",
+    "subtitle": "תיאור קצר של הפרויקט",
+    "responsible": "שם האחראי — תפקיד",
+    "date": "חודש שנה",
+    "organization": "שם הארגון",
+    "overview_cards": [
+      { "icon": "👤", "title": "אחראי פרויקט", "content": "שם האחראי" },
+      { "icon": "🏢", "title": "ארגון", "content": "שם הארגון" },
+      { "icon": "🌍", "title": "היקף הפרויקט", "content": "תיאור ההיקף" },
+      { "icon": "📅", "title": "לוח זמנים", "content": "תאריכים" },
+      { "icon": "🚀", "title": "סוג הפרויקט", "content": "סוג" },
+      { "icon": "📋", "title": "סטטוס רגולטורי", "content": "סטטוס" }
+    ]
+  },
+  "goals": [
+    { "title": "מטרה לדוגמה", "description": "תיאור המטרה" }
+  ],
+  "deliverables": [
+    { "title": "תוצר לדוגמה", "description": "תיאור התוצר" }
+  ],
+  "risks": [
+    {
+      "title": "שם הסיכון",
+      "severity": "very-high",
+      "severity_label": "חומרה גבוהה מאוד",
+      "probability": 9,
+      "damage": 9,
+      "score": 81,
+      "description": "תיאור הסיכון",
+      "impacts": ["השלכה 1", "השלכה 2"],
+      "opportunities": ["הזדמנות 1"]
+    }
+  ],
+  "strategies": [
+    {
+      "title": "אסטרטגיה לדוגמה",
+      "description": "תיאור האסטרטגיה",
+      "items": [
+        { "title": "פעולה 1", "description": "תיאור הפעולה", "badge": "תאריך יעד", "badge_type": "timeline" },
+        { "title": "פעולה 2", "description": "תיאור הפעולה", "badge": "KPI", "badge_type": "kpi" }
+      ]
+    }
+  ],
+  "innovation_regulation": {
+    "title": "הגדרת רמת החדשנות",
+    "description": "תיאור החדשנות בפרויקט",
+    "rri_statement": "עקרונות חדשנות אחראית",
+    "committee_recommendation": "המלצת הוועדה"
+  },
+  "innovation": {
+    "score": 7,
+    "label": "חדשנות בינונית-גבוהה",
+    "description": "תיאור רמת החדשנות",
+    "components": [
+      { "score": 7, "title": "השפעה פדגוגית", "description": "תיאור" },
+      { "score": 7, "title": "מורכבות טכנולוגית", "description": "תיאור" },
+      { "score": 6, "title": "שינוי ארגוני", "description": "תיאור" },
+      { "score": 8, "title": "סיכון טכנולוגי", "description": "תיאור" }
+    ]
+  },
+  "regulation_table": [
+    {
+      "requirement": "דרישה לדוגמה",
+      "requirement_detail": "פירוט הדרישה",
+      "status": "dev",
+      "status_label": "בפיתוח",
+      "action": "פעולה נדרשת"
+    }
+  ],
+  "executive_summary": {
+    "cards": [
+      { "title": "📊 רמת חדשנות", "content": "תיאור" },
+      { "title": "⚠️ רמת סיכון", "content": "תיאור" },
+      { "title": "✅ מצב אסדרה", "content": "תיאור" }
+    ],
+    "recommendations": [
+      { "title": "המלצה 1", "description": "פירוט ההמלצה" }
+    ],
+    "footer_note": "צעדים מיידיים: ..."
+  },
+  "footer": {
+    "main": "דוח ניהול סיכונים",
+    "sources": "מבוסס על: חוזר מנכ\"ל לאסדרת חדשנות | עקרונות RRI",
+    "credit": "ד\"ר אסף אוזן"
+  }
+};
+// ============================================================
+//  סוף אזור ה-JSON
+// ============================================================
+
+// ---------- helpers ----------
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+function severityColorClass(sev) {
+  return { 'very-high': 'col-very-high', 'high': 'col-high', 'medium': 'col-medium', 'low': 'col-low' }[sev] || 'col-low';
+}
+
+function statusBadge(status, label) {
+  const map = { full: 'badge-full', partial: 'badge-partial', dev: 'badge-dev', improve: 'badge-improve' };
+  const cls = map[status] || 'badge-dev';
+  return `<span class="${cls}">${esc(label)}</span>`;
+}
+
+// ---------- render ----------
+function renderHeader(meta) {
+  return `
+    <header class="header">
+      <h1 class="editable">⚠️ דוח ניהול סיכונים</h1>
+      <div class="subtitle editable">${esc(meta.project_name)} — ${esc(meta.subtitle)}</div>
+      <div class="date-badge editable">אחראי: ${esc(meta.responsible)} • ${esc(meta.date)}</div>
+    </header>`;
+}
+
+function renderNav() {
+  const items = [
+    ['#project','📋 הגדרת הפרויקט'],
+    ['#risks','⚠️ ניהול סיכונים'],
+    ['#strategies','📈 תוכנית התמודדות'],
+    ['#innovation-reg','🚀 אסדרת חדשנות'],
+    ['#innovation-level','📊 רמת החדשנות'],
+    ['#regulation','✅ התאמה לאסדרה'],
+    ['#executive','📝 סיכום מנהלים'],
+  ];
+  return `<nav class="nav-menu"><ul class="nav-links">${
+    items.map(([href, label]) => `<li><a href="${href}" class="nav-link">${label}</a></li>`).join('')
+  }</ul></nav>`;
+}
+
+function renderProject(d) {
+  const cards = (d.meta.overview_cards || []).map(c => `
+    <div class="overview-card">
+      <h4><span>${esc(c.icon)}</span><span class="editable">${esc(c.title)}</span></h4>
+      <p class="editable">${esc(c.content)}</p>
+    </div>`).join('');
+
+  const goals = (d.goals || []).map((g, i) => `
+    <div class="goal-item editable">
+      <strong>${i+1}. ${esc(g.title)}</strong><br>${esc(g.description)}
+    </div>`).join('');
+
+  const deliverables = (d.deliverables || []).map(dv => `
+    <div class="deliverable-item editable">
+      <strong>${esc(dv.title)}</strong> — ${esc(dv.description)}
+    </div>`).join('');
+
+  return `
+    <section id="project" class="section">
+      <div class="section-header editable">📋 הגדרת הפרויקט</div>
+      <div class="project-overview">
+        <h2 style="text-align:center;color:#2c3e50;font-size:2em;margin-bottom:25px;" class="editable">פרטי הפרויקט</h2>
+        <div class="overview-grid">${cards}</div>
+      </div>
+      <div class="goals-section">
+        <h3 class="editable">🎯 מטרות הפרויקט</h3>${goals}
+      </div>
+      <div class="goals-section">
+        <h3 class="editable">📋 תוצרים מצופים</h3>${deliverables}
+      </div>
+    </section>`;
+}
+
+function renderRisks(risks) {
+  const counts = { 'very-high': 0, 'high': 0, 'medium': 0, 'low': 0 };
+  risks.forEach(r => { if (counts[r.severity] !== undefined) counts[r.severity]++; });
+
+  const summary = [
+    ['very-high', 'col-very-high', 'גבוהה מאוד'],
+    ['high',      'col-high',      'גבוהה'],
+    ['medium',    'col-medium',    'בינונית'],
+    ['low',       'col-low',       'נמוכה'],
+  ].map(([sev, cls, label]) => `
+    <div class="summary-card">
+      <div class="summary-number ${cls} editable">${counts[sev]}</div>
+      <div class="editable">סיכונים בחומרה<br><strong>${label}</strong></div>
+    </div>`).join('');
+
+  const cards = risks.map(r => `
+    <div class="risk-card risk-${r.severity}">
+      <div class="risk-header">
+        <div class="risk-title editable">${esc(r.title)}</div>
+        <div class="risk-severity sev-${r.severity} editable">${esc(r.severity_label)}</div>
+      </div>
+      <div class="risk-metrics">
+        <div class="metric"><div class="metric-value editable">${r.probability}</div><div class="metric-label editable">הסתברות</div></div>
+        <div class="metric"><div class="metric-value editable">${r.damage}</div><div class="metric-label editable">עוצמת נזק</div></div>
+        <div class="metric"><div class="metric-value editable">${r.score}</div><div class="metric-label editable">דרגת חומרה</div></div>
+      </div>
+      <div class="risk-description editable">${esc(r.description)}</div>
+      <div class="risk-impact">
+        <div class="impact-title editable">השלכות אפשריות:</div>
+        <ul class="impact-list">${(r.impacts||[]).map(i=>`<li class="editable">${esc(i)}</li>`).join('')}</ul>
+        <div class="opportunity-title editable">הזדמנויות שנוצרות:</div>
+        <ul class="opportunity-list">${(r.opportunities||[]).map(o=>`<li class="editable">${esc(o)}</li>`).join('')}</ul>
+      </div>
+    </div>`).join('');
+
+  return `
+    <section id="risks" class="section">
+      <div class="section-header editable">⚠️ ניהול סיכונים</div>
+      <div class="risks-container">
+        <div class="risk-summary">${summary}</div>
+        <div class="risks-grid">${cards}</div>
+      </div>
+    </section>`;
+}
+
+function renderStrategies(strategies) {
+  const cards = strategies.map(s => {
+    const items = (s.items || []).map(item => `
+      <div class="strategy-item">
+        <h5 class="editable">${esc(item.title)}</h5>
+        <p class="editable">${esc(item.description)}</p>
+        <span class="${item.badge_type === 'kpi' ? 'kpi-badge' : 'timeline-badge'}">${esc(item.badge)}</span>
+      </div>`).join('');
+    return `
+      <div class="strategy-card">
+        <div class="strategy-header editable">${esc(s.title)}</div>
+        <div class="strategy-content">
+          <p class="editable" style="color:#34495e;margin-bottom:18px;">${esc(s.description)}</p>
+          <div class="strategy-grid">${items}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <section id="strategies" class="section">
+      <div class="section-header editable">📈 תוכנית התמודדות</div>
+      <div class="strategies-section">${cards}</div>
+    </section>`;
+}
+
+function renderInnovationReg(ir) {
+  return `
+    <section id="innovation-reg" class="section">
+      <div class="section-header editable">🚀 אסדרת חדשנות</div>
+      <div class="innovation-reg-section">
+        <div class="summary-box">
+          <h3 style="color:#8e44ad;margin-bottom:15px;" class="editable">${esc(ir.title)}</h3>
+          <p class="editable" style="color:#34495e;line-height:1.8;">${esc(ir.description)}</p>
+          <p class="editable" style="color:#34495e;line-height:1.8;margin-top:12px;">${esc(ir.rri_statement)}</p>
+        </div>
+        <div class="committee-box">
+          <h4>🏛️ המלצת ועדת המשנה לאסדרת חדשנות</h4>
+          <p class="editable" style="color:#34495e;line-height:1.8;">${esc(ir.committee_recommendation)}</p>
+        </div>
+      </div>
+    </section>`;
+}
+
+function renderInnovationLevel(inv) {
+  const components = (inv.components || []).map(c => `
+    <div class="component-card">
+      <div class="component-score editable">${c.score}</div>
+      <div class="component-title editable">${esc(c.title)}</div>
+      <p class="editable" style="opacity:0.85;font-size:0.95em;">${esc(c.description)}</p>
+    </div>`).join('');
+
+  return `
+    <section id="innovation-level" class="section">
+      <div class="section-header editable">📊 רמת החדשנות בפרויקט</div>
+      <div class="innovation-section">
+        <h2 class="editable" style="font-size:1.6em;margin-bottom:5px;">ציון חדשנות כולל</h2>
+        <div class="innovation-score editable">${inv.score}</div>
+        <div class="innovation-score-label editable">/ 10 — ${esc(inv.label)}</div>
+        <p class="editable" style="opacity:0.85;max-width:700px;margin:0 auto 20px;">${esc(inv.description)}</p>
+        <div class="innovation-components">${components}</div>
+      </div>
+    </section>`;
+}
+
+function renderRegulation(rows) {
+  const trs = rows.map(r => `
+    <tr>
+      <td class="editable"><strong>${esc(r.requirement)}</strong><br><small>${esc(r.requirement_detail)}</small></td>
+      <td>${statusBadge(r.status, r.status_label)}</td>
+      <td class="editable">${esc(r.action)}</td>
+    </tr>`).join('');
+
+  return `
+    <section id="regulation" class="section">
+      <div class="section-header editable">✅ התאמה לדרישות אסדרה</div>
+      <div class="regulation-section">
+        <table class="regulation-table">
+          <thead><tr>
+            <th class="editable">דרישת אסדרה</th>
+            <th class="editable">סטטוס התאמה</th>
+            <th class="editable">פעולה נדרשת</th>
+          </tr></thead>
+          <tbody>${trs}</tbody>
+        </table>
+      </div>
+    </section>`;
+}
+
+function renderExecutive(exec) {
+  const cards = (exec.cards || []).map(c => `
+    <div class="exec-card">
+      <h4>${esc(c.title)}</h4>
+      <p class="editable">${esc(c.content)}</p>
+    </div>`).join('');
+
+  const recs = (exec.recommendations || []).map((r, i) => `
+    <div class="rec-item editable">
+      <strong>${i+1}. ${esc(r.title)}</strong><br>${esc(r.description)}
+    </div>`).join('');
+
+  return `
+    <section id="executive" class="section">
+      <div class="section-header editable">📝 סיכום מנהלים והמלצות</div>
+      <div class="executive-section">
+        <h2 style="text-align:center;margin-bottom:25px;color:#f39c12;" class="editable">סיכום ביצועי</h2>
+        <div class="exec-grid">${cards}</div>
+        <div class="recommendations-box">
+          <h3>💡 המלצות מרכזיות</h3>${recs}
+        </div>
+        ${exec.footer_note ? `<div style="text-align:center;margin-top:25px;"><p class="editable" style="opacity:0.75;font-size:0.95em;">${esc(exec.footer_note)}</p></div>` : ''}
+      </div>
+    </section>`;
+}
+
+function renderFooter(f) {
+  return `
+    <footer class="footer">
+      <p class="editable">${esc(f.main)}</p>
+      <p style="margin-top:8px;opacity:0.8;">${esc(f.sources)}</p>
+      <p style="margin-top:10px;"><strong>פיתוח ועיצוב המוצר: ${esc(f.credit)}</strong></p>
+    </footer>`;
+}
+
+function renderReport(data) {
+  const d = data;
+  document.getElementById('app').innerHTML =
+    renderHeader(d.meta) +
+    renderNav() +
+    renderProject(d) +
+    renderRisks(d.risks || []) +
+    renderStrategies(d.strategies || []) +
+    renderInnovationReg(d.innovation_regulation || {}) +
+    renderInnovationLevel(d.innovation || {}) +
+    renderRegulation(d.regulation_table || []) +
+    renderExecutive(d.executive_summary || {}) +
+    renderFooter(d.footer || {});
+
+  document.title = `דוח ניהול סיכונים — ${d.meta.project_name}`;
+  initInteractivity();
+}
+
+function initInteractivity() {
+  // edit mode
+  let editing = false;
+  const btn = document.getElementById('editToggle');
+  btn.addEventListener('click', () => {
+    editing = !editing;
+    document.querySelectorAll('.editable').forEach(el => el.setAttribute('contenteditable', editing));
+    btn.textContent = editing ? '💾 סיים עריכה' : '🎨 התחל עריכה';
+    btn.classList.toggle('active', editing);
+    showMsg(editing ? '✅ מצב עריכה הופעל!' : '💾 השינויים נשמרו בדף');
+  });
+
+  // html export
+  document.getElementById('htmlExport').addEventListener('click', () => {
+    try {
+      const a = document.createElement('a');
+      a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(document.documentElement.outerHTML);
+      a.download = 'risk_report_' + Date.now() + '.html';
+      a.click();
+      showMsg('✅ הקובץ נשמר!');
+    } catch(e) {
+      alert('לחץ Ctrl+S לשמירה ידנית');
+    }
+  });
+
+  // back to top
+  const topBtn = document.getElementById('backToTop');
+  window.addEventListener('scroll', () => {
+    topBtn.classList.toggle('visible', window.scrollY > 400);
+  });
+  topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // active nav
+  const sections = document.querySelectorAll('section[id]');
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) cur = s.id; });
+    document.querySelectorAll('.nav-link').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
+  });
+}
+
+function showMsg(text) {
+  const el = document.getElementById('successMsg');
+  el.textContent = text;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ═══ הפרומפט המוטמע ═══
+const EZRA_PROMPT = `אתה מומחה לניהול סיכונים במערכת החינוך הישראלית.
+
+קרא את מסמך התפיסה המצורף וצור JSON בלבד — ללא הסברים, ללא טקסט נוסף, ללא markdown. רק JSON תקני.
+
+כללים מחייבים:
+- התמקד בהיבטים פדגוגיים ורגולטוריים בלבד
+- אל תזכיר נתונים כלכליים מספריים (תקציבים, עלויות)
+- זהה בדיוק 3 מטרות מרכזיות מהמסמך
+- גזור 4–5 סיכונים ישירות מהמטרות
+- כל סיכון: חומרה = הסתברות (1–10) × נזק (1–10)
+- רמות חומרה: גבוהה מאוד (81–100), גבוהה (49–80), בינונית (25–48), נמוכה (1–24)
+- ציין בכל סיכון לאיזו מטרה הוא קשור
+- המלצות חייבות להיות קונקרטיות ולתת מענה לכל אחת מ-3 המטרות
+- ציון חדשנות = ממוצע של 4 רכיבים (1–10 כל אחד)
+
+צור JSON במבנה הבא בדיוק:
+
+{
+  "meta": {
+    "project_name": "שם הפרויקט המדויק",
+    "subtitle": "תיאור קצר — 3-5 מילים",
+    "responsible": "שם האחראי — תפקיד",
+    "date": "חודש שנה",
+    "organization": "שם הארגון",
+    "overview_cards": [
+      { "icon": "👤", "title": "אחראי פרויקט", "content": "שם ותפקיד" },
+      { "icon": "🏢", "title": "ארגון", "content": "שם הארגון ושותפים" },
+      { "icon": "🌍", "title": "היקף הפרויקט", "content": "קהל יעד, מודל, מספר ימים ותאריכים" },
+      { "icon": "📅", "title": "לוח זמנים", "content": "מועדי הגשה, אישור, הפעלה" },
+      { "icon": "🚀", "title": "סוג החדשנות", "content": "סוג הכלי/פרויקט ומסלולו" },
+      { "icon": "📋", "title": "סטטוס רגולטורי", "content": "מסלול האסדרה ואחראי" }
+    ]
+  },
+  "goals": [
+    { "title": "מטרה 1: שם", "description": "פירוט פדגוגי" },
+    { "title": "מטרה 2: שם", "description": "פירוט פדגוגי" },
+    { "title": "מטרה 3: שם", "description": "פירוט פדגוגי" }
+  ],
+  "deliverables": [
+    { "title": "תוצר 1", "description": "תיאור קצר" },
+    { "title": "תוצר 2", "description": "תיאור קצר" },
+    { "title": "תוצר 3", "description": "תיאור קצר" }
+  ],
+  "risks": [
+    {
+      "title": "שם הסיכון",
+      "severity": "very-high",
+      "severity_label": "חומרה גבוהה מאוד",
+      "probability": 9, "damage": 9, "score": 81,
+      "description": "תיאור (נגזר ממטרה 1: שם)",
+      "impacts": ["השלכה 1", "השלכה 2", "השלכה 3"],
+      "opportunities": ["הזדמנות 1", "הזדמנות 2"]
+    }
+  ],
+  "strategies": [
+    {
+      "title": "אסטרטגיה 1 — שם",
+      "description": "תיאור כללי",
+      "items": [
+        { "title": "שלב 1", "description": "תיאור", "badge": "תאריך", "badge_type": "timeline" },
+        { "title": "שלב 2", "description": "תיאור", "badge": "תנאי", "badge_type": "timeline" },
+        { "title": "מדד הצלחה", "description": "KPI מדיד", "badge": "KPI", "badge_type": "kpi" }
+      ]
+    }
+  ],
+  "innovation_regulation": {
+    "title": "הגדרת רמת החדשנות",
+    "description": "מהות החדשנות בפרויקט",
+    "rri_statement": "עקרונות RRI: שלומות, שקיפות, אחריותיות, מידתיות",
+    "committee_recommendation": "מומלץ לאשר בתנאי ש..."
+  },
+  "innovation": {
+    "score": 7.0,
+    "label": "חדשנות בינונית-גבוהה",
+    "description": "הסבר הציון",
+    "components": [
+      { "score": 6, "title": "השפעה פדגוגית", "description": "תיאור" },
+      { "score": 7, "title": "מורכבות טכנולוגית", "description": "תיאור" },
+      { "score": 7, "title": "שינוי ארגוני", "description": "תיאור" },
+      { "score": 8, "title": "סיכון טכנולוגי", "description": "תיאור" }
+    ]
+  },
+  "regulation_table": [
+    {
+      "requirement": "שם הדרישה",
+      "requirement_detail": "פירוט",
+      "status": "dev", "status_label": "בפיתוח",
+      "action": "פעולה — מי, מה, מתי"
+    }
+  ],
+  "executive_summary": {
+    "cards": [
+      { "title": "📊 רמת חדשנות", "content": "X/10 — תיאור" },
+      { "title": "🔐 הסיכון הגדול", "content": "שם + ציון + פתרון" },
+      { "title": "⚠️ רמת סיכון כוללת", "content": "X גבוהים, Y בינוניים" }
+    ],
+    "recommendations": [
+      { "title": "המלצה 1 — למטרה 1", "description": "פירוט קונקרטי" },
+      { "title": "המלצה 2 — למטרה 2", "description": "פירוט קונקרטי" },
+      { "title": "המלצה 3 — למטרה 3", "description": "פירוט קונקרטי" }
+    ],
+    "footer_note": "צעדים מיידיים: (1) ... | (2) ... | (3) ..."
+  },
+  "footer": {
+    "main": "דוח ניהול סיכונים — [שם] | [ארגון] | [תאריך]",
+    "sources": "מבוסס על: חוזר מנכ\\"ל לאסדרת חדשנות | עקרונות RRI | חוק לימוד חובה",
+    "credit": "ד\\"ר אסף אוזן"
+  }
+}
+
+ערכים תקינים לשדה status: full / partial / dev / improve
+ערכים תקינים לשדה severity: very-high / high / medium / low
+
+כעת נתח את מסמך התפיסה הבא וצא JSON בלבד — ללא שום טקסט נוסף:
+
+`;
+
+// ═══ שלב א: העתק פרומפט + מסמך ═══
+function handleStepA() {
+  const doc = document.getElementById('docInput').value.trim();
+  if (!doc) {
+    document.getElementById('docInput').style.borderColor = '#e74c3c';
+    document.getElementById('docInput').placeholder = '⚠️ יש להדביק את מסמך התפיסה לפני המשך...';
+    return;
+  }
+  const full = EZRA_PROMPT + doc;
+  navigator.clipboard.writeText(full).then(() => {
+    document.getElementById('stepA').style.display = 'none';
+    document.getElementById('stepB').style.display = 'flex';
+  }).catch(() => {
+    // fallback — show the text for manual copy
+    const ta = document.createElement('textarea');
+    ta.value = full;
+    ta.style.cssText = 'position:fixed;top:-9999px';
+    document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    document.getElementById('stepA').style.display = 'none';
+    document.getElementById('stepB').style.display = 'flex';
+  });
+}
+
+// ═══ שלב ב: עיבוד תוצאת ה-AI ═══
+function handleStepB() {
+  const raw = document.getElementById('aiOutput').value.trim();
+  if (!raw) { showError('אנא הדבק את התוצאה מה-AI'); return; }
+
+  // חלץ JSON מתוך הטקסט — גם אם ה-AI הוסיף הסברים סביבו
+  let jsonStr = raw;
+  const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenceMatch) {
+    jsonStr = fenceMatch[1];
+  } else {
+    const braceStart = raw.indexOf('{');
+    const braceEnd = raw.lastIndexOf('}');
+    if (braceStart !== -1 && braceEnd !== -1) {
+      jsonStr = raw.slice(braceStart, braceEnd + 1);
+    }
+  }
+
+  let data;
+  try {
+    data = JSON.parse(jsonStr);
+  } catch(e) {
+    showError('לא הצלחתי לזהות JSON תקני בתוצאה. נסה לבקש מה-AI: "החזר JSON בלבד, ללא הסברים"');
+    return;
+  }
+
+  document.getElementById('stepB').style.display = 'none';
+  document.getElementById('reportWrapper').style.display = 'block';
+  renderReport(data);
+  window.scrollTo({ top: 0 });
+}
+
+function goBackToA() {
+  document.getElementById('reportWrapper').style.display = 'none';
+  document.getElementById('stepB').style.display = 'none';
+  document.getElementById('stepA').style.display = 'flex';
+}
+
+function showError(msg) {
+  const el = document.getElementById('pasteError');
+  document.getElementById('errorText').textContent = msg;
+  el.style.display = 'block';
+}
+
+// Ctrl+Enter בכל textarea
+['docInput','aiOutput'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', function() {
+    this.classList.toggle('has-content', this.value.trim().length > 10);
+    this.style.borderColor = '';
+  });
+  el.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      if (id === 'docInput') handleStepA();
+      else handleStepB();
+    }
+  });
+});
+</script>
+</body>
+</html>
