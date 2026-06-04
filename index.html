@@ -6,52 +6,24 @@
 <title>EZRA · פרומפט לניהול סיכונים</title>
 <style>
 :root{
-  --bg:#eef2fb;
-  --card:#ffffff;
-  --ink:#1f2937;
-  --muted:#667085;
-  --line:#e4e7ec;
-  --brand:#2b7cd3;
-  --brand-dark:#1f63ad;
-  --ink-badge:#1a2f4a;
-  --ok:#1f9d6b;
+  --bg:#eef2fb;--card:#fff;--ink:#1f2937;--muted:#667085;--line:#e4e7ec;
+  --brand:#2b7cd3;--brand-dark:#1f63ad;--ink-badge:#1a2f4a;--ok:#1f9d6b;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  min-height:100vh;display:grid;place-items:center;
-  background:var(--bg);color:var(--ink);
-  font-family:"Segoe UI",Tahoma,Arial,sans-serif;padding:20px;
-}
-main{
-  width:min(560px,100%);background:var(--card);
-  border:1px solid var(--line);border-radius:20px;
-  padding:30px 32px;box-shadow:0 12px 40px rgba(31,41,55,.07);
-}
-.badge{
-  float:left;background:var(--ink-badge);color:#fff;
-  font-weight:800;font-size:.8rem;letter-spacing:.4px;
-  padding:6px 14px;border-radius:999px;
-}
+body{min-height:100vh;display:grid;place-items:center;background:var(--bg);
+  color:var(--ink);font-family:"Segoe UI",Tahoma,Arial,sans-serif;padding:20px}
+main{width:min(560px,100%);background:var(--card);border:1px solid var(--line);
+  border-radius:20px;padding:30px 32px;box-shadow:0 12px 40px rgba(31,41,55,.07)}
+.badge{float:left;background:var(--ink-badge);color:#fff;font-weight:800;
+  font-size:.8rem;letter-spacing:.4px;padding:6px 14px;border-radius:999px}
 h1{font-size:1.7rem;color:var(--ink-badge);margin-bottom:18px}
-.steps{
-  list-style:none;margin:0 0 22px;padding:0;
-  display:flex;flex-direction:column;gap:10px;
-}
-.steps li{
-  display:flex;align-items:flex-start;gap:11px;
-  font-size:1rem;color:var(--ink);line-height:1.5;
-}
-.steps .n{
-  flex:none;width:26px;height:26px;border-radius:50%;
-  background:var(--brand);color:#fff;font-weight:800;
-  display:grid;place-items:center;font-size:.85rem;
-}
-button{
-  width:100%;border:0;cursor:pointer;font-family:inherit;
-  border-radius:12px;padding:15px 16px;font-weight:800;font-size:1.05rem;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:background .2s,transform .1s,border-color .2s,color .2s;
-}
+.steps{list-style:none;margin:0 0 22px;padding:0;display:flex;flex-direction:column;gap:10px}
+.steps li{display:flex;align-items:flex-start;gap:11px;font-size:1rem;color:var(--ink);line-height:1.5}
+.steps .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--brand);
+  color:#fff;font-weight:800;display:grid;place-items:center;font-size:.85rem}
+button{width:100%;border:0;cursor:pointer;font-family:inherit;border-radius:12px;
+  padding:15px 16px;font-weight:800;font-size:1.05rem;display:flex;align-items:center;
+  justify-content:center;gap:8px;transition:background .2s,transform .1s,border-color .2s,color .2s}
 button:active{transform:scale(.99)}
 #copyBtn{background:var(--brand);color:#fff}
 #copyBtn:hover{background:var(--brand-dark)}
@@ -60,12 +32,9 @@ button:active{transform:scale(.99)}
 #exampleBtn:hover{border-color:var(--brand);color:var(--brand-dark)}
 #status{min-height:1.4em;margin-top:16px;font-weight:700;font-size:.92rem;color:var(--muted);text-align:center}
 #status.ok{color:var(--ok)}
+.credit{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
+  text-align:center;color:var(--muted);font-size:.85rem;font-weight:600}
 button:focus-visible{outline:3px solid #f0b429;outline-offset:2px}
-
-.credit{
-  margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
-  text-align:center;color:var(--muted);font-size:.85rem;font-weight:600;
-}
 
 #overlay{position:fixed;inset:0;background:rgba(15,23,42,.7);display:none;z-index:1000;padding:18px}
 #overlay.show{display:flex;flex-direction:column}
@@ -91,241 +60,597 @@ button:focus-visible{outline:3px solid #f0b429;outline-offset:2px}
   <button id="exampleBtn">👁️ הצג דוח לדוגמה</button>
 
   <div id="status" role="status"></div>
-
   <div class="credit">פיתוח ועיצוב: ד״ר אסף אוזן</div>
 </main>
 
 <div id="overlay" aria-hidden="true">
   <div class="ov-bar">
-    <b>📄 דוגמה: דוח ניהול סיכונים — "ישראל ריאלית" (חינוך STEM)</b>
+    <b>📄 דוח לדוגמה — להמחשה בלבד</b>
     <button id="closeOv">✕ סגור</button>
   </div>
-  <iframe id="frame" title="דוח לדוגמה"></iframe>
+  <iframe id="frame" title="דוח לדוגמה" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-scripts allow-modals allow-top-navigation-by-user-activation" referrerpolicy="no-referrer"></iframe>
 </div>
 
 <script>
-const copyBtn    = document.getElementById("copyBtn");
-const statusEl   = document.getElementById("status");
-const exampleBtn = document.getElementById("exampleBtn");
-const overlay    = document.getElementById("overlay");
-const frame      = document.getElementById("frame");
-const closeOv    = document.getElementById("closeOv");
+const copyBtn=document.getElementById("copyBtn");
+const statusEl=document.getElementById("status");
+const exampleBtn=document.getElementById("exampleBtn");
+const overlay=document.getElementById("overlay");
+const frame=document.getElementById("frame");
+const closeOv=document.getElementById("closeOv");
 
-copyBtn.addEventListener("click", async () => {
-  try{
-    await navigator.clipboard.writeText(RISK_PROMPT);
-  }catch(e){
-    const ta=document.createElement("textarea");
-    ta.value=RISK_PROMPT;document.body.appendChild(ta);ta.select();
-    document.execCommand("copy");ta.remove();
-  }
-  copyBtn.classList.add("done");
-  copyBtn.textContent="✅ הועתק!";
-  statusEl.textContent="הפרומפט הועתק. הוסף מסמך תפיסה והדבק במודל שפה.";
-  statusEl.className="ok";
+copyBtn.addEventListener("click",async()=>{
+  try{await navigator.clipboard.writeText(PROMPT);}
+  catch(e){const ta=document.createElement("textarea");ta.value=PROMPT;
+    document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();}
+  copyBtn.classList.add("done");copyBtn.textContent="✅ הועתק!";
+  statusEl.textContent="הפרומפט הועתק. הוסף מסמך תפיסה והדבק במודל שפה.";statusEl.className="ok";
   setTimeout(()=>{copyBtn.classList.remove("done");copyBtn.textContent="📋 העתק פרומפט";},2600);
 });
 
 exampleBtn.addEventListener("click",()=>{
   if(!frame.srcdoc)frame.srcdoc=SAMPLE_REPORT;
-  overlay.classList.add("show");
-  overlay.setAttribute("aria-hidden","false");
+  overlay.classList.add("show");overlay.setAttribute("aria-hidden","false");
 });
-closeOv.addEventListener("click",()=>{
-  overlay.classList.remove("show");
-  overlay.setAttribute("aria-hidden","true");
-});
+closeOv.addEventListener("click",()=>{overlay.classList.remove("show");overlay.setAttribute("aria-hidden","true");});
 overlay.addEventListener("click",e=>{if(e.target===overlay)closeOv.click();});
 
-/* ---- הפרומפט הקבוע ---- */
-const RISK_PROMPT = `אתה מומחה בכיר לניהול סיכונים, חדשנות ואסדרה במערכת החינוך הישראלית.
+/* ══ הפרומפט (עובד, מחזיר JSON — לא לשנות) ══ */
+const PROMPT = `אתה מומחה בכיר לניהול סיכונים, חדשנות ואסדרה במערכת החינוך הישראלית.
 
-אצרף לך מסמך תפיסה של פרויקט / יוזמה חינוכית. נתח אותו וצור דוח ניהול סיכונים מקצועי ושלם.
+המשימה: קרא את מסמך התפיסה שבסוף ההודעה, ונתח אותו לכדי דוח ניהול סיכונים.
 
-🔴 פלט מבוקש: קובץ HTML יחיד, מלא ומעוצב (RTL, עברית) — ללא הסברים לפני או אחרי, ללא markdown, רק קוד HTML שניתן לשמור כקובץ ולפתוח בדפדפן.
-
-═══════════════════════════
-כללים מחייבים לניתוח
-═══════════════════════════
-1. התמקד בהיבטים פדגוגיים, ארגוניים ורגולטוריים בלבד. אל תכלול נתונים כלכליים/תקציביים מספריים.
-2. זהה בדיוק 3 מטרות מרכזיות מתוך המסמך.
-3. גזור 4–5 סיכונים ישירות מן המטרות. כל סיכון חייב לציין לאיזו מטרה הוא קשור.
-4. לכל סיכון חשב: חומרה = הסתברות (1–10) × עוצמת נזק (1–10).
-   רמות: גבוהה מאוד (81–100) · גבוהה (49–80) · בינונית (25–48) · נמוכה (1–24).
-5. לכל סיכון פרט: השלכות (2–3) + הזדמנויות (1–2) + מקור רגולטורי רלוונטי (ציטוט).
-6. בנה תוכנית התמודדות עם אסטרטגיות ויעדי הצלחה (KPI) ולוחות זמנים.
-7. דרג רמת חדשנות (1–10) כממוצע של 4 רכיבים: השפעה פדגוגית, מורכבות טכנולוגית, שינוי ארגוני, סיכון טכנולוגי.
-8. הוסף טבלת התאמה לדרישות אסדרה (סטטוס: תקין / חלקי / בפיתוח / טעון שיפור).
-9. סיים בסיכום מנהלים + 3 המלצות קונקרטיות (מענה לכל אחת מ-3 המטרות).
-10. הוסף סקציית "מקורות מידע" המפרטת את הבסיס הרגולטורי והאקדמי שעליו נשען הניתוח.
+🔴 הפלט חייב להיות JSON תקני בלבד — ללא טקסט לפני, ללא טקסט אחרי, ללא \`\`\`json, ללא markdown, ללא הסברים. רק אובייקט JSON אחד תקני שאפשר להעביר ישירות ל-JSON.parse.
 
 ═══════════════════════════
-מבנה ועיצוב ה-HTML (חובה — שמור על אחידות מלאה)
+כללי ניתוח מחייבים (לשמירה על אחידות מלאה בין כל המודלים)
 ═══════════════════════════
-- מסמך HTML יחיד עם <style> פנימי. RTL, dir="rtl", lang="he".
-- כותרת עליונה כהה (gradient) עם שם הפרויקט, תת-כותרת ומטא (אחראי + תאריך).
-- סרגל ניווט עליון "דביק" (sticky) עם קישורים לסקציות.
-- סקציות לפי הסדר הבא, כל אחת עם כותרת צבעונית ממורכזת:
-  s1 📋 הגדרת הפרויקט (כרטיסי מטא + מטרות + תוצרים)
-  s2 ⚠️ ניהול סיכונים (סיכום מספרי 4 רמות + כרטיסי סיכון עם הסתברות/נזק/חומרה, השלכות, הזדמנויות)
-  s3 📈 תוכנית התמודדות (אסטרטגיות + KPI + לוחות זמנים)
-  s4 🚀 אסדרת חדשנות (המלצת ועדת משנה + ארגז חול רגולטורי)
-  s5 📊 רמת החדשנות (ציון כולל גדול + 4 רכיבים)
-  s6 ✅ התאמה לדרישות אסדרה (טבלה עם סטטוסים צבעוניים)
-  s7 📝 סיכום מנהלים והמלצות
-  s8 📚 מקורות מידע (רשימת מקורות רגולטוריים ואקדמיים)
-- פלטת צבעים: כותרות כהות (#1a3a5c/#2c3e50), סיכונים באדום/כתום/צהוב/ירוק לפי חומרה, חדשנות בסגול (#8e44ad).
-- כרטיסים מעוגלים עם צללית, רספונסיבי (grid), וכלל @media print להדפסה ל-PDF.
-- הוסף בראש העמוד כפתורי "🎨 עריכה", "📄 PDF" ו-"💾 שמור" (position:fixed) הפועלים על תוכן בעל class="editable".
+1. התמקד בהיבטים פדגוגיים, ארגוניים ורגולטוריים בלבד. אל תכלול נתונים כלכליים/תקציביים מספריים (סכומים, עלויות, תקציב).
+2. זהה בדיוק 3 מטרות מרכזיות מהמסמך. שדה title של כל מטרה יכיל את שם המטרה בלבד — בלי המילה "מטרה" ובלי מספר (המספור מתווסף אוטומטית בעיצוב). לדוגמה: "פיתוח כשירויות STEM" ולא "מטרה 1: פיתוח כשירויות STEM".
+3. גזור בדיוק 5 סיכונים, ישירות מהמטרות. כל סיכון יציין בתיאורו לאיזו מטרה הוא קשור, בפורמט: "(נגזר ממטרה N: <שם>)".
+4. חישוב חומרה לכל סיכון — חובה: score = probability × damage, כאשר probability ו-damage שלמים בין 1 ל-10.
+   קביעת severity ו-severity_label לפי score:
+     score 81–100  → severity="very-high", severity_label="חומרה גבוהה מאוד"
+     score 49–80   → severity="high",       severity_label="חומרה גבוהה"
+     score 25–48   → severity="medium",      severity_label="חומרה בינונית"
+     score 1–24    → severity="low",         severity_label="חומרה נמוכה"
+   ערכי severity המותרים: "very-high" | "high" | "medium" | "low" — ואין אחרים.
+5. כל סיכון מבוסס על שני עוגנים יחד: (א) מטרה — יצוין בתיאור בפורמט "(נגזר ממטרה: <שם המטרה>)"; (ב) מקור — שדה source יכיל ציטוט מקור רגולטורי רלוונטי מתוך רשימת המקורות שבסוף הפרומפט. כל סיכון כולל גם impacts (2–3 פריטים) ו-opportunities (1–2 פריטים).
+6. strategies: 2–3 אסטרטגיות התמודדות. כל אסטרטגיה כוללת items; כל item עם badge ו-badge_type. badge_type המותרים: "timeline" (לוח זמנים) או "kpi" (מדד הצלחה). חובה שכל אסטרטגיה תכלול לפחות item אחד עם badge_type="kpi" ו-title="מדד הצלחה".
+7. innovation: score הוא הממוצע (מעוגל לעשירית) של 4 ה-components. components חייבים להיות בדיוק 4, בסדר ובכותרות הבאות: "השפעה פדגוגית", "מורכבות טכנולוגית", "שינוי ארגוני", "סיכון טכנולוגי". כל component עם score שלם 1–10 ותיאור.
+8. regulation_table: 4–5 שורות. ערכי status המותרים: "full" | "partial" | "dev" | "improve" בלבד. status_label בהתאם: full="תקין" / partial="חלקי" / dev="בפיתוח" / improve="טעון שיפור".
+9. executive_summary.recommendations: בדיוק 3 המלצות קונקרטיות — אחת לכל מטרה. שדה title יכיל את שם ההמלצה בלבד, בלי המילה "המלצה" ובלי מספר (המספור מתווסף אוטומטית). אפשר לציין את שיוך המטרה בסוגריים בסוף, למשל: "סטנדרט פדגוגי מחייב (למטרה: כשירויות STEM)".
+10. אל תמציא מקורות, קישורים או URLs. שדה source הוא ציטוט טקסטואלי בלבד. (הקישורים החיים מתווספים אוטומטית על ידי המערכת.)
+11. כל הערכים טקסטואליים בעברית. אל תשאיר שדות ריקים — מלא כל שדה בתוכן ענייני הנגזר מהמסמך.
 
 ═══════════════════════════
-כעת אצרף את מסמך התפיסה לניתוח:
+מבנה ה-JSON המדויק (החזר בדיוק את המפתחות האלה, באותו סדר):
 ═══════════════════════════
-[הדבק כאן את מסמך התפיסה, או צרף אותו כקובץ]`;
+{
+  "meta": {
+    "project_name": "",
+    "subtitle": "",
+    "responsible": "",
+    "date": "",
+    "organization": "",
+    "overview_cards": [
+      {
+        "icon": "👤",
+        "title": "אחראי פרויקט",
+        "content": ""
+      },
+      {
+        "icon": "🏢",
+        "title": "ארגון",
+        "content": ""
+      },
+      {
+        "icon": "🌍",
+        "title": "היקף הפרויקט",
+        "content": ""
+      },
+      {
+        "icon": "📅",
+        "title": "לוח זמנים",
+        "content": ""
+      },
+      {
+        "icon": "🚀",
+        "title": "סוג החדשנות",
+        "content": ""
+      },
+      {
+        "icon": "📋",
+        "title": "סטטוס רגולטורי",
+        "content": ""
+      }
+    ]
+  },
+  "goals": [
+    {
+      "title": "<שם המטרה — בלי מספר>",
+      "description": ""
+    },
+    {
+      "title": "<שם המטרה — בלי מספר>",
+      "description": ""
+    },
+    {
+      "title": "<שם המטרה — בלי מספר>",
+      "description": ""
+    }
+  ],
+  "deliverables": [
+    {
+      "title": "",
+      "description": ""
+    },
+    {
+      "title": "",
+      "description": ""
+    },
+    {
+      "title": "",
+      "description": ""
+    }
+  ],
+  "risks": [
+    {
+      "title": "",
+      "severity": "high",
+      "severity_label": "חומרה גבוהה",
+      "probability": 8,
+      "damage": 9,
+      "score": 72,
+      "description": "(נגזר ממטרה 1: <שם>)",
+      "impacts": [
+        "",
+        ""
+      ],
+      "opportunities": [
+        ""
+      ],
+      "source": "חוזר מנכ\\"ל לאסדרת חדשנות"
+    }
+  ],
+  "strategies": [
+    {
+      "title": "אסטרטגיה 1 — <שם>",
+      "description": "",
+      "items": [
+        {
+          "title": "",
+          "description": "",
+          "badge": "לפני הפעלה",
+          "badge_type": "timeline"
+        },
+        {
+          "title": "מדד הצלחה",
+          "description": "",
+          "badge": "KPI",
+          "badge_type": "kpi"
+        }
+      ]
+    }
+  ],
+  "innovation_regulation": {
+    "title": "",
+    "description": "",
+    "rri_statement": "",
+    "committee_recommendation": ""
+  },
+  "innovation": {
+    "score": 7.0,
+    "label": "",
+    "description": "",
+    "components": [
+      {
+        "score": 8,
+        "title": "השפעה פדגוגית",
+        "description": ""
+      },
+      {
+        "score": 7,
+        "title": "מורכבות טכנולוגית",
+        "description": ""
+      },
+      {
+        "score": 7,
+        "title": "שינוי ארגוני",
+        "description": ""
+      },
+      {
+        "score": 6,
+        "title": "סיכון טכנולוגי",
+        "description": ""
+      }
+    ]
+  },
+  "regulation_table": [
+    {
+      "requirement": "",
+      "requirement_detail": "",
+      "status": "dev",
+      "status_label": "בפיתוח",
+      "action": ""
+    }
+  ],
+  "executive_summary": {
+    "cards": [
+      {
+        "title": "📊 רמת חדשנות",
+        "content": ""
+      },
+      {
+        "title": "🔐 הסיכון הגדול",
+        "content": ""
+      },
+      {
+        "title": "⚠️ רמת סיכון כוללת",
+        "content": ""
+      }
+    ],
+    "recommendations": [
+      {
+        "title": "<שם ההמלצה — בלי מספר>",
+        "description": ""
+      },
+      {
+        "title": "<שם ההמלצה — בלי מספר>",
+        "description": ""
+      },
+      {
+        "title": "<שם ההמלצה — בלי מספר>",
+        "description": ""
+      }
+    ],
+    "footer_note": ""
+  },
+  "footer": {
+    "main": "דוח ניהול סיכונים | משרד החינוך",
+    "sources": "מבוסס על: חוזר מנכ\\"ל לאסדרת חדשנות | עקרונות RRI | חוק לימוד חובה",
+    "credit": "ד\\"ר אסף אוזן"
+  }
+}
 
-/* ---- דוח לדוגמה מוטמע ---- */
+הערות מילוי:
+- meta.overview_cards: השאר את ה-icon וה-title כפי שהם; מלא רק את content.
+- score בכל סיכון = probability × damage (ודא התאמה מספרית).
+- innovation.score = ממוצע 4 הרכיבים (עיגול לעשירית).
+- אם פרט מסוים אינו מופיע במסמך — הסק אותו באופן סביר מהקשר החינוכי, אך אל תמציא נתונים כמותיים.
+
+═══════════════════════════
+שלב הפקה — חובה (גם וגם):
+═══════════════════════════
+לאחר שתסיים את הניתוח, אל תסתפק בהצגת ה-JSON בצ'אט. צור עבורי בפועל קובץ HTML יחיד, מלא ומעוצב בעברית (RTL), הכולל:
+- CSS פנימי, עיצוב כרטיסים, כותרת עליונה, וסרגל ניווט לסקציות.
+- כל הסקציות לפי ה-JSON: הגדרת פרויקט, סיכונים (עם הסתברות/נזק/חומרה צבעוניים), תוכנית התמודדות, אסדרת חדשנות, רמת חדשנות, טבלת רגולציה, סיכום מנהלים, ומקורות מידע.
+- כפתורי "עריכה" / "PDF" / "שמור" בראש העמוד.
+- במספור המטרות/ההמלצות: הצג את המספר כעיגול עיצובי בלבד, ואל תכפיל אותו בתוך הטקסט.
+הפק את הקובץ כקובץ להורדה/פתיחה בדפדפן — לא כקטע קוד בלבד.
+
+═══════════════════════════
+מקורות מידע — השתמש אך ורק בקישורים הבאים (אל תמציא קישורים אחרים):
+═══════════════════════════
+חוקים ורגולציית חינוך:
+• חוזר מנכ"ל לאסדרת חדשנות — https://innovate.education.gov.il/
+• חוק לימוד חובה, תש"ט–1949 — https://www.nevo.co.il/law_html/law01/053_001.htm
+• מאגר חוזרי מנכ"ל — https://edu.gov.il/owlHtml/sites/MazkirutPed/ChozreMankal/
+• חוק חינוך ממלכתי, 1953 — https://www.nevo.co.il/law_html/law01/058_001.htm
+• חוקי חינוך כלליים — https://edu.gov.il/minhalpedagogy/law
+• תוכנית ליבה לשעת חינוך — https://edu.gov.il/minhalpedagogy/shaat-chinuch/core
+חדשנות אחראית ובינה מלאכותית:
+• שימוש בכלי בינה מלאכותית בחינוך (2025) — https://innovate.education.gov.il/AI
+• מפת התמצאות לאסדרת חדשנות — https://innovate.education.gov.il/regulation-map
+תכנון ובקרה:
+• מדריך לתכנון ובקרה (CIO, 2024) — https://harhayeda.gov.il/media/4wqogjpb/20241208-tasc-di-cio-methodology-for-publishing-v01.pdf
+שכר ותנאי העסקה:
+• עוז לתמורה – ארגון המורים (חט"ע) — https://www.irgun-morim.org.il/oz-letmura
+• אופק חדש – הסתדרות המורים — https://www.edu.gov.il/minhalpedagogy/ofek-hadash
+ארגון לימודים ופיתוח מקצועי:
+• ארגון הלמידה בחינוך העל-יסודי תשפ"ו — https://edu.gov.il/owlHtml/sites/MazkirutPed/ChozreMankal/Pages/tashpav-1-11.aspx
+• פיתוח מקצועי – פורטל עובדי הוראה — https://teachers.education.gov.il/professional-development
+• הנחיות הסתדרות המורים — https://www.edu.gov.il/minhalpedagogy/histadrut
+• מאגר ספרי לימוד מאושרים — https://edu.gov.il/minhalpedagogy/curricula/textbooks
+
+═══════════════════════════
+מסמך התפיסה לניתוח:
+═══════════════════════════
+[הדבק כאן את מסמך התפיסה]
+`;
+
+/* ══ דוח לדוגמה מוטמע (עם הקישורים החיים + דיסקליימר) ══ */
 const SAMPLE_REPORT = String.raw`<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-<meta charset="UTF-8">
+<html lang="he" dir="rtl"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>דוח ניהול סיכונים — תוכנית "ישראל ריאלית" - תפיסת חינוך STEM</title>
+<title>דוח ניהול סיכונים — דוגמה</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',Tahoma,sans-serif;line-height:1.6;background:linear-gradient(135deg,#667eea,#764ba2);color:#2c3e50}
-.wrap{max-width:1100px;margin:0 auto;background:rgba(255,255,255,.98);border-radius:20px;box-shadow:0 25px 50px rgba(0,0,0,.15);overflow:hidden}
-.hdr{background:linear-gradient(135deg,#1a3a5c,#2c3e50);color:#fff;padding:50px 40px;text-align:center}
-.hdr h1{font-size:2.6em;margin-bottom:10px;text-shadow:2px 2px 4px rgba(0,0,0,.3)}
-.hdr .sub{font-size:1.2em;opacity:.9;margin-bottom:6px}
-.hdr .meta{display:inline-block;background:rgba(255,255,255,.2);padding:7px 16px;border-radius:20px;font-size:.85em;margin-top:10px}
-.nav{position:sticky;top:0;background:linear-gradient(135deg,#34495e,#2c3e50);z-index:900;box-shadow:0 4px 8px rgba(0,0,0,.2)}
-.nav ul{display:flex;list-style:none}
-.nav li{flex:1}
-.nav a{display:block;padding:14px 8px;color:#bdc3c7;text-decoration:none;text-align:center;font-weight:600;font-size:.8em;transition:all .3s;border-left:1px solid #2c3e50}
-.nav li:first-child a{border-left:none}
-.nav a:hover{background:#2c3e50;color:#fff}
-section{scroll-margin-top:55px}
-.sec-hdr{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;padding:22px 35px;font-size:1.8em;font-weight:700;text-align:center;position:relative}
-.sec-hdr::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:60px;height:4px;background:rgba(255,255,255,.8);border-radius:2px}
-.proj-ov{padding:35px;background:linear-gradient(135deg,#f8f9fa,#e9ecef)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:20px}
-.card{background:#fff;padding:20px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.07);border-top:4px solid #3498db}
-.card h4{color:#2c3e50;margin-bottom:8px;font-size:1em}
-.list-sec{background:#fff;margin:22px 35px;padding:24px;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.07)}
-.list-sec h3{color:#2c3e50;margin-bottom:14px;font-size:1.3em;text-align:center}
-.item{background:#f8f9fa;margin:10px 0;padding:16px;border-radius:9px;border-right:4px solid #27ae60}
-.risks-wrap{padding:35px;background:#fff}
-.risk-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
-.sum-card{background:linear-gradient(135deg,#f8f9fa,#e9ecef);padding:18px;border-radius:12px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.08)}
-.sum-num{font-size:2.5em;font-weight:700;margin-bottom:6px}
-.c-vh{color:#e74c3c}.c-h{color:#f39c12}.c-m{color:#e8b800}.c-l{color:#27ae60}
-.risks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:22px;margin-top:24px}
-.risk-card{background:#fff;border-radius:14px;box-shadow:0 8px 25px rgba(0,0,0,.09);padding:24px;border-top:5px solid}
-.risk-very-high{border-top-color:#e74c3c}.risk-high{border-top-color:#f39c12}.risk-medium{border-top-color:#e8b800}.risk-low{border-top-color:#27ae60}
-.risk-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px}
-.risk-title{font-size:1.1em;font-weight:700;color:#2c3e50;flex:1}
-.sev{padding:5px 12px;border-radius:20px;font-size:.75em;font-weight:700;color:#fff;white-space:nowrap}
-.severity-very-high{background:#e74c3c}.severity-high{background:#f39c12}.severity-medium{background:#e8b800;color:#2c3e50}.severity-low{background:#27ae60}
-.metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:14px 0;text-align:center}
-.metric{background:#f8f9fa;padding:12px;border-radius:9px}
-.metric-val{font-size:1.6em;font-weight:700;color:#2c3e50}
-.metric-lbl{font-size:.8em;color:#7f8c8d;margin-top:3px}
-.desc{color:#34495e;line-height:1.7;background:#f8f9fa;padding:14px;border-radius:9px;margin-top:12px;border-right:4px solid #bdc3c7;font-size:.95em}
-.impact-title{font-weight:700;color:#e74c3c;margin:14px 0 6px}
-.opp-title{font-weight:700;color:#27ae60;margin:14px 0 6px}
-.ulist{list-style:none;padding-right:10px}
-.ulist li{padding:6px 0;border-bottom:1px solid #ecf0f1;font-size:.92em}
-.ulist.imp li::before{content:'⚠️';margin-left:6px}
-.ulist.opp li::before{content:'✅';margin-left:6px}
-.strats{padding:40px 35px;background:linear-gradient(135deg,#ecf0f1,#dfe6e9)}
-.strat{background:#fff;margin:22px 0;border-radius:18px;box-shadow:0 12px 30px rgba(0,0,0,.09);overflow:hidden}
-.strat-hdr{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:18px 24px;font-weight:700;font-size:1.15em}
-.strat-body{padding:22px 24px}
-.strat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:14px}
-.strat-item{background:#f8f9fa;padding:14px;border-radius:10px;border-right:4px solid #27ae60}
-.strat-item h5{color:#27ae60;margin-bottom:5px;font-size:.95em}
-.strat-item p{font-size:.88em;color:#34495e}
-.badge-t{display:inline-block;background:#3498db;color:#fff;padding:3px 10px;border-radius:12px;font-size:.75em;margin-top:6px}
-.badge-k{display:inline-block;background:#8e44ad;color:#fff;padding:3px 10px;border-radius:12px;font-size:.75em;margin-top:6px}
-.innov-reg{background:linear-gradient(135deg,#f8f9fa,#e9ecef);padding:40px 35px}
-.white-box{background:#fff;padding:24px;border-radius:14px;margin:20px 0;box-shadow:0 6px 20px rgba(0,0,0,.07)}
-.comm-box{background:#f0f8ff;padding:18px;border-radius:12px;margin-top:18px;border-left:5px solid #3498db}
-.innov-level{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;padding:40px 35px;text-align:center}
-.innov-score{font-size:4.5em;font-weight:700;margin:20px 0;text-shadow:2px 2px 5px rgba(0,0,0,.3)}
-.innov-lbl{font-size:1.2em;opacity:.9;margin-top:-12px;margin-bottom:12px}
-.comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:28px}
-.comp{background:rgba(255,255,255,.14);padding:18px;border-radius:13px;border:1px solid rgba(255,255,255,.2)}
-.comp-score{font-size:2.2em;font-weight:700;color:#f39c12;margin-bottom:6px}
-.comp-title{font-size:1em;font-weight:700;margin-bottom:6px}
-.reg-wrap{padding:35px;background:#ecf0f1}
-.reg-table{width:100%;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.07)}
-.reg-table th,.reg-table td{padding:14px 16px;text-align:right;border-bottom:1px solid #ecf0f1;vertical-align:top}
-.reg-table th{background:#34495e;color:#fff;font-weight:700}
-.badge-full{background:#27ae60;color:#fff;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:700;display:inline-block}
-.badge-partial{background:#f39c12;color:#fff;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:700;display:inline-block}
-.badge-dev{background:#3498db;color:#fff;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:700;display:inline-block}
-.badge-improve{background:#e74c3c;color:#fff;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:700;display:inline-block}
-.exec{padding:40px 35px;background:linear-gradient(135deg,#2c3e50,#34495e);color:#fff}
-.exec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin:22px 0}
-.exec-card{background:rgba(255,255,255,.1);padding:18px;border-radius:13px;border:1px solid rgba(255,255,255,.14)}
-.exec-card h4{color:#f39c12;font-size:1em;margin-bottom:8px}
-.recs{background:rgba(255,255,255,.07);padding:20px;border-radius:13px;margin-top:16px}
-.recs h3{color:#f39c12;margin-bottom:14px}
-.rec{background:rgba(255,255,255,.07);margin:10px 0;padding:14px;border-radius:9px;border-right:4px solid #f39c12;font-size:.92em}
-.src-wrap{padding:35px;background:linear-gradient(135deg,#f8f9fa,#eef2f5)}
-.src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-top:8px}
-.src-card{background:#fff;padding:20px;border-radius:13px;box-shadow:0 6px 20px rgba(0,0,0,.07);border-right:5px solid #1a3a5c}
-.src-card h4{color:#1a3a5c;margin-bottom:10px;font-size:1.05em}
-.src-card ul{list-style:none}
-.src-card li{padding:7px 0;border-bottom:1px solid #ecf0f1;font-size:.9em;color:#34495e;line-height:1.5}
-.src-card li:last-child{border-bottom:none}
-.src-card li::before{content:'📄';margin-left:8px}
-.src-note{background:#fff;margin-top:18px;padding:16px 20px;border-radius:12px;border-left:5px solid #c9a14a;font-size:.88em;color:#5b6b72;box-shadow:0 4px 12px rgba(0,0,0,.05)}
-.ftr{background:#1a252f;color:#7f8c8d;text-align:center;padding:25px;font-size:.88em}
-.ftr strong{color:#3498db}
-.btn-edit,.btn-pdf,.btn-save{position:fixed;color:#fff;border:none;padding:12px 20px;border-radius:25px;cursor:pointer;font-size:.9em;font-weight:700;z-index:1000;left:20px}
-.btn-edit{top:20px;background:#3498db;box-shadow:0 4px 15px rgba(52,152,219,.4)}
-.btn-edit.on{background:#27ae60}
-.btn-pdf{top:68px;background:#e74c3c;box-shadow:0 4px 15px rgba(231,76,60,.4)}
-.btn-save{top:116px;background:#8e44ad;box-shadow:0 4px 15px rgba(142,68,173,.4)}
-.editable{padding:3px;border-radius:3px;transition:all .3s}
-.editable[contenteditable=true]{background:rgba(52,152,219,.1);border:2px dashed #3498db;outline:none;cursor:text;padding:5px}
+body{font-family:'Segoe UI',Tahoma,sans-serif;line-height:1.6;background:linear-gradient(135deg,#667eea,#764ba2);color:#2c3e50;padding:18px}
+.wrap{max-width:1100px;margin:0 auto;background:rgba(255,255,255,.98);border-radius:18px;box-shadow:0 25px 50px rgba(0,0,0,.2);overflow:hidden}
+.r-nav ul{display:flex;list-style:none;flex-wrap:wrap}
+.r-nav li{flex:1}
+.r-nav a{display:block;padding:12px 6px;color:#bdc3c7;text-decoration:none;text-align:center;font-weight:600;font-size:.78em}
+.r-nav a:hover{background:#2c3e50;color:#fff}
 html{scroll-behavior:smooth}
-@media(max-width:700px){.nav a{font-size:.7em;padding:10px 4px}.risks-grid,.grid,.comp-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.risk-sum{grid-template-columns:1fr 1fr}}
-@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}.btn-edit,.btn-pdf,.btn-save,.nav{display:none!important}body{background:#fff!important}.wrap{box-shadow:none!important;border-radius:0!important;max-width:100%!important}.risk-card,.strat,.card,.white-box{page-break-inside:avoid!important}@page{margin:10mm;size:A4}}
-</style>
-</head>
-<body>
-<div class="wrap">
-<button class="btn-edit" id="eBtn" onclick="toggleEdit()">🎨 עריכה</button>
-<button class="btn-pdf" onclick="window.print()">📄 PDF</button>
-<button class="btn-save" onclick="saveHTML()">💾 שמור</button>
-<header class="hdr">
-  <h1 class="editable">⚠️ דוח ניהול סיכונים</h1>
-  <div class="sub editable">תוכנית "ישראל ריאלית" - תפיסת חינוך STEM — הטמעת תפיסת חינוך פדגוגית חדשה לפיתוח כשירויות STEM במערכת החינוך</div>
-  <div class="meta editable">אחראי: מינהל חדשנות וטכנולוגיה, משרד החינוך • 12 במאי 2026</div>
-</header>
-<nav class="nav"><ul>
-  <li><a href="#s1">📋 פרויקט</a></li><li><a href="#s2">⚠️ סיכונים</a></li><li><a href="#s3">📈 התמודדות</a></li><li><a href="#s4">🚀 אסדרה</a></li><li><a href="#s5">📊 חדשנות</a></li><li><a href="#s6">✅ רגולציה</a></li><li><a href="#s7">📝 סיכום</a></li><li><a href="#s8">📚 מקורות</a></li>
-</ul></nav>
-<section id="s1"><div class="sec-hdr editable">📋 הגדרת הפרויקט</div><div class="proj-ov"><div class="grid"><div class="card"><h4>👤 <span class="editable">אחראי פרויקט</span></h4><p class="editable">מנהל תוכנית "ישראל ריאלית"</p></div><div class="card"><h4>🏢 <span class="editable">ארגון</span></h4><p class="editable">משרד החינוך</p></div><div class="card"><h4>🌍 <span class="editable">היקף</span></h4><p class="editable">לאומי - מגיל גן ועד התיכון</p></div><div class="card"><h4>📅 <span class="editable">לוח זמנים</span></h4><p class="editable">תשפ"ה-תש"צ (2025-2030)</p></div><div class="card"><h4>🚀 <span class="editable">סוג חדשנות</span></h4><p class="editable">חדשנות פדגוגית וארגונית (Disruptive)</p></div><div class="card"><h4>📋 <span class="editable">סטטוס רגולטורי</span></h4><p class="editable">טיוטה - דורש מנגנוני אסדרה גמישים</p></div></div></div><div class="list-sec"><h3 class="editable">🎯 מטרות הפרויקט</h3><div class="item editable"><strong>1. ניהול פעלני של השלומות האישית (Well-being)</strong><br>רכישת כשירויות לניהול פעלני של חיי הלומדים בכל ממדי החיים כאזרחים אורייני STEM.</div><div class="item editable"><strong>2. הגדלת המוביליות, הרלוונטיות והפריון</strong><br>שיפור מיומנויות של כלל העובדים במשק לצמצום פערים חברתיים וכלכליים.</div><div class="item editable"><strong>3. חיזוק תחומי ה-STEM ברמה הלאומית</strong><br>הכשרת מקצועני STEM להעצמת חוסנה הכלכלי, הביטחוני והמדעי של מדינת ישראל.</div></div><div class="list-sec"><h3 class="editable">📋 תוצרים מצופים</h3><div class="item editable"><strong>תוכניות לימודים מבוססות כשירויות</strong> — עדכון תוכניות למדעים, טכנולוגיה, הנדסה ומתמטיקה מותאמות PISA/TIMSS.</div><div class="item editable"><strong>מרחבי למידה חדשניים ומרכזי STEM</strong> — הקמת מעבדות Maker, שילוב AI ו-XR, ופיתוח מרכזים אזוריים.</div><div class="item editable"><strong>מתווה הערכה רב-ממדי</strong> — מעבר מהערכת ידע מסורתית לפורטפוליו, הערכת ביצועים ומבחני כשירויות.</div></div></section>
-<section id="s2"><div class="sec-hdr editable">⚠️ ניהול סיכונים</div><div class="risks-wrap"><div class="risk-sum"><div class="sum-card"><div class="sum-num c-vh editable">2</div><div>גבוהה מאוד</div></div><div class="sum-card"><div class="sum-num c-h editable">1</div><div>גבוהה</div></div><div class="sum-card"><div class="sum-num c-m editable">1</div><div>בינונית</div></div><div class="sum-card"><div class="sum-num c-l editable">0</div><div>נמוכה</div></div></div><div class="risks-grid"><div class="risk-card risk-very-high"><div class="risk-head"><div class="risk-title editable">פערי הוגנות נגישות לטכנולוגיה (פגיעה במוביליות)</div><div class="sev severity-very-high editable">חמור מאוד</div></div><div style="font-size:.9em;color:#3498db;margin-bottom:10px" class="editable">מקושר למטרה 2: מוביליות ופריון</div><div class="metrics"><div class="metric"><div class="metric-val editable">8</div><div class="metric-lbl">הסתברות</div></div><div class="metric"><div class="metric-val editable">9</div><div class="metric-lbl">עוצמת נזק</div></div><div class="metric"><div class="metric-val editable">72</div><div class="metric-lbl">דרגת חומרה</div></div></div><div class="desc editable">סכנה שרשויות חזקות יישמו את התוכנית בקלות בעוד הפריפריה תיוותר מאחור בשל מחסור בתשתיות ובכוח אדם מיומן.</div><div class="impact-title">השלכות:</div><ul class="ulist imp"><li class="editable">העמקת הפערים הסוציואקונומיים.</li><li class="editable">פגיעה באמון הציבור בתוכנית.</li><li class="editable">חוסר יכולת למצות פוטנציאל אנושי בפריפריה.</li></ul><div class="opp-title">הזדמנויות:</div><ul class="ulist opp"><li class="editable">הקמת מרכזי STEM אזוריים כמשאב משותף ונגיש.</li><li class="editable">שימוש בלמידה וירטואלית מבוססת AI לסגירת פערים.</li></ul></div><div class="risk-card risk-very-high"><div class="risk-head"><div class="risk-title editable">התנגדות לשינוי ומחסור במורים מתאימים</div><div class="sev severity-very-high editable">חמור מאוד</div></div><div style="font-size:.9em;color:#3498db;margin-bottom:10px" class="editable">מקושר למטרה 3: חיזוק תחומי ה-STEM</div><div class="metrics"><div class="metric"><div class="metric-val editable">9</div><div class="metric-lbl">הסתברות</div></div><div class="metric"><div class="metric-val editable">8</div><div class="metric-lbl">עוצמת נזק</div></div><div class="metric"><div class="metric-val editable">72</div><div class="metric-lbl">דרגת חומרה</div></div></div><div class="desc editable">המעבר מ"הוראת ידע" ל"הנחיית כשירויות" והוראה בין-תחומית דורש שינוי תפיסתי עמוק והכשרה ארוכה, מול תחרות כוח אדם עם התעשייה.</div><div class="impact-title">השלכות:</div><ul class="ulist imp"><li class="editable">יישום חלקי או שטחי של התוכנית בכיתות.</li><li class="editable">שחיקה גבוהה של צוותי הוראה.</li></ul><div class="opp-title">הזדמנויות:</div><ul class="ulist opp"><li class="editable">פיתוח מודלים של הוראה שיתופית (Co-Teaching) וקהילות מורים.</li></ul></div><div class="risk-card risk-high"><div class="risk-head"><div class="risk-title editable">עומס קוגניטיבי וניתוק תלמידים</div><div class="sev severity-high editable">גבוה</div></div><div style="font-size:.9em;color:#3498db;margin-bottom:10px" class="editable">מקושר למטרה 1: שלומות אישית</div><div class="metrics"><div class="metric"><div class="metric-val editable">7</div><div class="metric-lbl">הסתברות</div></div><div class="metric"><div class="metric-val editable">8</div><div class="metric-lbl">עוצמת נזק</div></div><div class="metric"><div class="metric-val editable">56</div><div class="metric-lbl">דרגת חומרה</div></div></div><div class="desc editable">למידה פעלנית ובין-תחומית, ללא תיווך נכון ופרסונליזציה, עלולה לייצר תסכול ונשירה בקרב תלמידים חלשים יותר.</div><div class="impact-title">השלכות:</div><ul class="ulist imp"><li class="editable">ירידה במוטיבציה במקום העלאתה.</li><li class="editable">פגיעה בתחושת המסוגלות של התלמידים.</li></ul><div class="opp-title">הזדמנויות:</div><ul class="ulist opp"><li class="editable">שילוב מערכות למידה אדפטיביות וחונכי AI להתאמת הקצב.</li></ul></div><div class="risk-card risk-medium"><div class="risk-head"><div class="risk-title editable">אי-הלימה בין תוכנית הלימודים להערכה פורמלית</div><div class="sev severity-medium editable">בינוני</div></div><div style="font-size:.9em;color:#3498db;margin-bottom:10px" class="editable">כללי - השפעה על כל המטרות</div><div class="metrics"><div class="metric"><div class="metric-val editable">6</div><div class="metric-lbl">הסתברות</div></div><div class="metric"><div class="metric-val editable">7</div><div class="metric-lbl">עוצמת נזק</div></div><div class="metric"><div class="metric-val editable">42</div><div class="metric-lbl">דרגת חומרה</div></div></div><div class="desc editable">עיכוב באסדרת בחינות הבגרות ומבחני המיצ"ב כך שישקפו כשירויות ולא ידע בלבד.</div><div class="impact-title">השלכות:</div><ul class="ulist imp"><li class="editable">מורים יחזרו להוראה מסורתית כדי "ללמד למבחן".</li><li class="editable">תסכול בקרב תלמידים המוערכים בשיטות מיושנות.</li></ul><div class="opp-title">הזדמנויות:</div><ul class="ulist opp"><li class="editable">קידום רפורמה מקיפה בהערכה מבוססת פורטפוליו והגנה בעל פה.</li></ul></div></div></div></section>
-<section id="s3"><div class="sec-hdr editable">📈 תוכנית התמודדות</div><div class="strats"><div class="strat"><div class="strat-hdr editable">פיתוח תשתיות הוגנות (מענה לסיכון 1)</div><div class="strat-body"><p class="editable" style="color:#34495e;margin-bottom:14px">הקמת מערך מרכזי STEM אזוריים ושילוב סביבות וירטואליות מתקדמות המנגישות את הלמידה.</p><div class="strat-grid"><div class="strat-item"><h5 class="editable">מודל תקצוב דיפרנציאלי</h5><p class="editable">תעדוף רשויות במדד טיפוח נמוך.</p><span class="badge-t">רבעון 3, 2025</span></div><div class="strat-item"><h5 class="editable">פריסת מרכזים</h5><p class="editable">תכנון והקמת 5 מרכזים אזוריים בפריפריה.</p><span class="badge-t">רבעון 1, 2026</span></div><div class="strat-item"><h5 class="editable">מדד הצלחה</h5><p class="editable">עלייה ב-30% בהשתתפות תלמידי פריפריה בפרויקטים.</p><span class="badge-k">KPI</span></div></div></div></div><div class="strat"><div class="strat-hdr editable">מעטפת הכשרה ואסדרה לצוותי הוראה (מענה לסיכון 2 ו-4)</div><div class="strat-body"><p class="editable" style="color:#34495e;margin-bottom:14px">יצירת קהילות מקצועיות (PLC) והגמשת הרגולציה הפדגוגית לטובת הוראה בין-תחומית וגמישות בשעות.</p><div class="strat-grid"><div class="strat-item"><h5 class="editable">קהילות למידה</h5><p class="editable">פתיחת הכשרות ייעודיות ל"מנחי כשירויות".</p><span class="badge-t">רבעון 4, 2025</span></div><div class="strat-item"><h5 class="editable">פיילוט בגרות פורטפוליו</h5><p class="editable">השקת פיילוט הערכה אינטגרטיבית לבתי ספר מובילים.</p><span class="badge-t">שנת הלימודים תשפ"ז</span></div><div class="strat-item"><h5 class="editable">מדד הצלחה</h5><p class="editable">80% ממורי ה-STEM יעברו הכשרת פדגוגיה חדשנית.</p><span class="badge-k">KPI</span></div></div></div></div></div></section>
-<section id="s4"><div class="sec-hdr editable">🚀 אסדרת חדשנות</div><div class="innov-reg"><div class="white-box"><h3 style="color:#8e44ad;margin-bottom:12px" class="editable">פדגוגיה מוטת עתיד ומבוססת כשירויות</h3><p class="editable" style="color:#34495e;line-height:1.8">המעבר להוראה בין-תחומית, למידת Maker וסימולטורים, דורש מרחב רגולטורי מאפשר ללמידה במרחבי החיים (Out-of-school) ושילוב מנטורים חיצוניים.</p><p class="editable" style="color:#34495e;line-height:1.8;margin-top:10px">מחויבות לאחריות חברתית ואתית בשימוש בבינה מלאכותית, תוך קידום הוגנות ושקיפות בהערכה מותאמת אישית.</p></div><div class="comm-box"><h4>🏛️ המלצת ועדת המשנה לאסדרת חדשנות</h4><p class="editable" style="color:#34495e;line-height:1.8">לאשר "ארגז חול רגולטורי" למוסדות מקדמי STEM להפעלת מערכות שעות גמישות ומתן קרדיטציה ללמידה בלתי פורמלית.</p></div></div></section>
-<section id="s5"><div class="sec-hdr editable">📊 רמת החדשנות</div><div class="innov-level"><h2 class="editable" style="font-size:1.4em;margin-bottom:4px">ציון חדשנות כולל</h2><div class="innov-score editable">8.3</div><div class="innov-lbl editable">/ 10 — מהפכנית פדגוגית</div><p class="editable" style="opacity:.85;max-width:600px;margin:0 auto 16px">שינוי פרדיגמטי מהעברת ידע לבניית כשירויות אינטגרטיביות, מבוסס טכנולוגיה וגמישות מערכתית.</p><div class="comp-grid"><div class="comp"><div class="comp-score editable">9.5</div><div class="comp-title editable">השפעה פדגוגית</div><p class="editable" style="opacity:.85;font-size:.9em">שינוי מהותי מהוראת דיסציפלינות מבודדות לגישה בין-תחומית והוליסטית (CBL/PBL).</p></div><div class="comp"><div class="comp-score editable">8.0</div><div class="comp-title editable">מורכבות טכנולוגית</div><p class="editable" style="opacity:.85;font-size:.9em">אימוץ AI כחונך, כלי XR/VR, ומעבדות דיגיטליות מתקדמות.</p></div><div class="comp"><div class="comp-score editable">9.0</div><div class="comp-title editable">שינוי ארגוני</div><p class="editable" style="opacity:.85;font-size:.9em">דרישה למערכת שעות מודולרית, תפקידים חדשים, ומרחבי למידה גמישים.</p></div><div class="comp"><div class="comp-score editable">6.5</div><div class="comp-title editable">סיכון טכנולוגי</div><p class="editable" style="opacity:.85;font-size:.9em">תלות בתשתיות אינטרנט וענן בטוחות ואמינות, בדגש על AI.</p></div></div></div></section>
-<section id="s6"><div class="sec-hdr editable">✅ התאמה לדרישות אסדרה</div><div class="reg-wrap"><table class="reg-table"><thead><tr><th>דרישת אסדרה</th><th>סטטוס</th><th>פעולה נדרשת</th></tr></thead><tbody><tr><td class="editable"><strong>הכרה בלמידה אי-פורמלית</strong><br><small>קרדיטציה אקדמית/בית-ספרית לתוצרי מועדונים ותנועות.</small></td><td><span class="badge-improve">טעון שיפור</span></td><td class="editable">פיתוח מתווה "דרכון STEM" לתגים דיגיטליים אחידים.</td></tr><tr><td class="editable"><strong>הגמשת מערכת השעות</strong><br><small>מעבר לבלוקים של 90+ דקות ועבודה בינתחומית.</small></td><td><span class="badge-dev">בפיתוח</span></td><td class="editable">עדכון חוזר מנכ"ל לארגון שעות הלמידה.</td></tr><tr><td class="editable"><strong>הערכה ובגרויות חלופיות</strong><br><small>שילוב פורטפוליו דיגיטלי והגנה בע"פ כתחליף ציון.</small></td><td><span class="badge-partial">חלקי</span></td><td class="editable">פיילוט בגרות אינטגרטיבית באישור המזכירות הפדגוגית.</td></tr><tr><td class="editable"><strong>שילוב AI בהוראה ובהערכה</strong><br><small>רגולציה מותאמת לגיל (בדגש על גיל רך) ופרטיות נתונים.</small></td><td><span class="badge-full">תקין (עם בקרה)</span></td><td class="editable">החלת מסמך "בינה מלאכותית בגני הילדים" על שכבות נוספות.</td></tr></tbody></table></div></section>
-<section id="s7"><div class="sec-hdr editable">📝 סיכום מנהלים והמלצות</div><div class="exec"><h2 style="text-align:center;color:#f39c12;margin-bottom:18px" class="editable">סיכום ביצועי</h2><div class="exec-grid"><div class="exec-card"><h4>📊 רמת חדשנות</h4><p class="editable">שינוי פרדיגמה יסודי (Disruptive) מהוראה להנחיה.</p></div><div class="exec-card"><h4>🔐 הסיכון הגדול</h4><p class="editable">פערים בתשתיות והכשרת מורים שיובילו לאי-שוויון.</p></div><div class="exec-card"><h4>⚠️ רמת סיכון כוללת</h4><p class="editable">גבוהה (נדרשת היערכות מערכתית רוחבית).</p></div></div><div class="recs"><h3>💡 המלצות מרכזיות</h3><div class="rec editable"><strong>1. מיסוד הגמישות הארגונית</strong><br>להקים מנגנון אסדרה התומך בחדשנות פדגוגית ללמידה רציפה (24/7).</div><div class="rec editable"><strong>2. תעדוף הוגנות ופריפריה</strong><br>תקצוב מהיר של מרכזי STEM אזוריים כמשאב שוויוני מבוסס AI וטכנולוגיות ייצור.</div><div class="rec editable"><strong>3. מודל הערכה עדכני</strong><br>האצת סנכרון הבגרויות ומבחני המפמ"ר למסגרות PISA/TIMSS להערכת כשירויות הוליסטית.</div></div><p class="editable" style="text-align:center;margin-top:20px;opacity:.75;font-size:.9em">יש לאשר את תוכניות הפיתוח המקצועי לקראת שנת תשפ"ו.</p></div></section>
-<section id="s8"><div class="sec-hdr editable" style="background:linear-gradient(135deg,#1a3a5c,#2c3e50)">📚 מקורות מידע</div><div class="src-wrap"><div class="src-grid"><div class="src-card"><h4>📐 מסגרות רגולטוריות</h4><ul><li class="editable">חוזר מנכ"ל משרד החינוך לאסדרת חדשנות</li><li class="editable">חוק לימוד חובה, התש"ט–1949</li><li class="editable">חוזר מנכ"ל לארגון שעות הלמידה ומבנה יום הלימודים</li><li class="editable">מסמך "בינה מלאכותית בגני הילדים" — המזכירות הפדגוגית</li></ul></div><div class="src-card"><h4>🎓 בסיס פדגוגי ואקדמי</h4><ul><li class="editable">עקרונות RRI (מחקר וחדשנות אחראיים)</li><li class="editable">פדגוגיה מוטת עתיד — אגף מו"פ, ניסויים ויוזמות</li><li class="editable">מודלים פדגוגיים: CBL / PBL (למידה מבוססת כשירויות ופרויקטים)</li><li class="editable">תפיסת השלומות (Well-being) בחינוך</li></ul></div><div class="src-card"><h4>🌍 מדדים ומבחנים בינלאומיים</h4><ul><li class="editable">PISA — תכנית הערכת תלמידים בינלאומית (OECD)</li><li class="editable">TIMSS — מגמות בהישגים במתמטיקה ומדעים</li><li class="editable">מסגרת מיומנויות המאה ה-21 (OECD Learning Compass 2030)</li></ul></div><div class="src-card"><h4>📄 מסמכי מקור של הפרויקט</h4><ul><li class="editable">מסמך תפיסה — מינהל חדשנות וטכנולוגיה (גרסה 1.3), מאי 2026</li><li class="editable">המלצת ועדת המשנה לאסדרת חדשנות</li><li class="editable">תוכנית "ישראל ריאלית" — מסמך יסוד</li></ul></div></div><div class="src-note editable">הערה מתודולוגית: הסיכונים, ציוני החומרה וההמלצות בדוח זה נגזרו מניתוח מסמך התפיסה אל מול המקורות שלעיל. ציון החומרה לכל סיכון = הסתברות (1–10) × עוצמת נזק (1–10). יש לעדכן את המקורות בהתאם למסמך התפיסה הספציפי המנותח.</div></div></section>
-<footer class="ftr"><p class="editable">דוח ניהול סיכונים פדגוגי ורגולטורי - מבוסס תפיסת ישראל ריאלית</p><p style="margin-top:6px;opacity:.8" class="editable">מבוסס על מסמך מנהל חדשנות וטכנולוגיה (גרסה 1.3), מאי 2026.</p><p style="margin-top:10px"><strong>פיתוח ועיצוב: ד"ר אסף אוזן</strong></p></footer>
+@media print{body{background:#fff!important;padding:0}.wrap{box-shadow:none;border-radius:0}}
+</style></head>
+<body><div class="wrap"><div id="reportApp">
+<div style="background:#fff8e1;border:1px solid #f0b429;border-radius:12px;margin:16px 22px;padding:11px 15px;color:#7a5c00;font-size:.78em;line-height:1.55;display:flex;gap:9px;align-items:flex-start">
+  <span style="font-size:1.1em;line-height:1.2">⚠️</span>
+  <div><strong style="color:#9a6a00">הבהרה:</strong> דוח זה נוצר אוטומטית ומתבסס על מסמכי מדיניות ורגולציה המופיעים במקורות. אין לראות בו אישור, אסמכתא או חוות דעת רשמית. הדוח נועד להשראה ולחשבה ראשונית בלבד, ואינו תחליף לייעוץ מקצועי, משפטי או רגולטורי.</div>
 </div>
-<script>
-let ed=false;
-function toggleEdit(){ed=!ed;document.querySelectorAll('.editable').forEach(e=>e.setAttribute('contenteditable',ed));const b=document.getElementById('eBtn');b.textContent=ed?'💾 סיים עריכה':'🎨 עריכה';b.classList.toggle('on',ed);}
-function saveHTML(){const a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(document.documentElement.outerHTML);a.download='risk_report.html';a.click();}
-<\/script>
-</body>
-</html>
-`;
+    <div style="background:linear-gradient(135deg,#1a3a5c,#2c3e50);color:white;padding:45px 35px;text-align:center">
+      <h1 class="ed" style="font-size:2.4em;margin-bottom:8px;text-shadow:2px 2px 4px rgba(0,0,0,.3)">⚠️ דוח ניהול סיכונים</h1>
+      <div class="ed" style="font-size:1.1em;opacity:.9;margin-bottom:6px">מרכזי כשירויות STEM רשותיים — תשתית STEM רשותית</div>
+      <div class="ed" style="display:inline-block;background:rgba(255,255,255,.2);padding:7px 16px;border-radius:20px;font-size:.85em;margin-top:10px">אחראי: משרד החינוך והרשות המקומית • אפריל 2026</div>
+    </div>
+
+    <nav class="r-nav" style="position:sticky;top:0;background:linear-gradient(135deg,#34495e,#2c3e50);z-index:900;box-shadow:0 4px 8px rgba(0,0,0,.2)">
+      <ul style="display:flex;list-style:none;margin:0;padding:0">
+        <li style="flex:1"><a href="#s1" style="display:block;padding:13px 6px;color:#bdc3c7;text-decoration:none;text-align:center;font-weight:600;font-size:.75em;border-left:1px solid #2c3e50" onmouseover="this.style.background='#2c3e50';this.style.color='white'" onmouseout="this.style.background='';this.style.color='#bdc3c7'">📋 פרויקט</a></li><li style="flex:1"><a href="#s2" style="display:block;padding:13px 6px;color:#bdc3c7;text-decoration:none;text-align:center;font-weight:600;font-size:.75em;border-left:1px solid #2c3e50" onmouseover="this.style.background='#2c3e50';this.style.color='white'" onmouseout="this.style.background='';this.style.color='#bdc3c7'">⚠️ סיכונים</a></li><li style="flex:1"><a href="#s3" style="display:block;padding:13px 6px;color:#bdc3c7;text-decoration:none;text-align:center;font-weight:600;font-size:.75em;border-left:1px solid #2c3e50" onmouseover="this.style.background='#2c3e50';this.style.color='white'" onmouseout="this.style.background='';this.style.color='#bdc3c7'">📈 התמודדות</a></li><li style="flex:1"><a href="#s4" style="display:block;padding:13px 6px;color:#bdc3c7;text-decoration:none;text-align:center;font-weight:600;font-size:.75em;border-left:1px solid #2c3e50" onmouseover="this.style.background='#2c3e50';this.style.color='white'" onmouseout="this.style.background='';this.style.color='#bdc3c7'">🚀 אסדרה</a></li><li style="flex:1"><a href="#s5" style="display:block;padding:13px 6px;color:#bdc3c7;text-decoration:none;text-align:center;font-weight:600;font-size:.75em;border-left:1px solid #2c3e50" onmouseover="this.style.background='#2c3e50';this.style.color='white'" onmouseout="this.style.background='';this.style.color='#bdc3c7'">📊 חדשנות</a></li><li style="flex:1"><a href="#s6" style="display:block;padding:13px 6px;color:#bdc3c7;text-decoration:none;text-align:center;font-weight:600;font-size:.75em;border-left:1px solid #2c3e50" onmouseover="this.style.background='#2c3e50';this.style.color='white'" onmouseout="this.style.background='';this.style.color='#bdc3c7'">✅ רגולציה</a></li><li style="flex:1"><a href="#s7" style="display:block;padding:13px 6px;color:#bdc3c7;text-decoration:none;text-align:center;font-weight:600;font-size:.75em;border-left:1px solid #2c3e50" onmouseover="this.style.background='#2c3e50';this.style.color='white'" onmouseout="this.style.background='';this.style.color='#bdc3c7'">📝 סיכום</a></li><li style="flex:1"><a href="#s8" style="display:block;padding:13px 6px;color:#bdc3c7;text-decoration:none;text-align:center;font-weight:600;font-size:.75em;border-left:1px solid #2c3e50" onmouseover="this.style.background='#2c3e50';this.style.color='white'" onmouseout="this.style.background='';this.style.color='#bdc3c7'">📚 מקורות</a></li>
+      </ul>
+    </nav>
+
+    <section id="s1" style="scroll-margin-top:55px">
+      <div  style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;padding:20px 35px;font-size:1.6em;font-weight:700;text-align:center" class="ed">📋 הגדרת הפרויקט</div>
+      <div style="padding:28px;background:linear-gradient(135deg,#f8f9fa,#e9ecef)">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px">
+          <div style="background:white;padding:16px;border-radius:12px;box-shadow:0 5px 16px rgba(0,0,0,.07);border-top:4px solid #3498db"><h4 style="color:#2c3e50;margin-bottom:6px;font-size:.92em">👤 <span class="ed">אחראי פרויקט</span></h4><p class="ed" style="color:#34495e;font-size:.88em">משרד החינוך והרשות המקומית — אחריות משותפת להפעלה, פיקוח והטמעה</p></div><div style="background:white;padding:16px;border-radius:12px;box-shadow:0 5px 16px rgba(0,0,0,.07);border-top:4px solid #3498db"><h4 style="color:#2c3e50;margin-bottom:6px;font-size:.92em">🏢 <span class="ed">ארגון</span></h4><p class="ed" style="color:#34495e;font-size:.88em">משרד החינוך, רשויות מקומיות, בתי ספר, שותפי אקדמיה, תעשייה וקהילה</p></div><div style="background:white;padding:16px;border-radius:12px;box-shadow:0 5px 16px rgba(0,0,0,.07);border-top:4px solid #3498db"><h4 style="color:#2c3e50;margin-bottom:6px;font-size:.92em">🌍 <span class="ed">היקף הפרויקט</span></h4><p class="ed" style="color:#34495e;font-size:.88em">תלמידים, צוותי חינוך, קהילה ושותפים; מודל רשותי או אזורי</p></div><div style="background:white;padding:16px;border-radius:12px;box-shadow:0 5px 16px rgba(0,0,0,.07);border-top:4px solid #3498db"><h4 style="color:#2c3e50;margin-bottom:6px;font-size:.92em">📅 <span class="ed">לוח זמנים</span></h4><p class="ed" style="color:#34495e;font-size:.88em">גיבוש צורך וחזון, מיפוי שותפים, תכנון פדגוגי, גיוס צוות, הפעלה מדורגת</p></div><div style="background:white;padding:16px;border-radius:12px;box-shadow:0 5px 16px rgba(0,0,0,.07);border-top:4px solid #3498db"><h4 style="color:#2c3e50;margin-bottom:6px;font-size:.92em">🚀 <span class="ed">סוג החדשנות</span></h4><p class="ed" style="color:#34495e;font-size:.88em">מרכז למידה היברידי, רב-תחומי, מבוסס חקר ועשייה</p></div><div style="background:white;padding:16px;border-radius:12px;box-shadow:0 5px 16px rgba(0,0,0,.07);border-top:4px solid #3498db"><h4 style="color:#2c3e50;margin-bottom:6px;font-size:.92em">📋 <span class="ed">סטטוס רגולטורי</span></h4><p class="ed" style="color:#34495e;font-size:.88em">נדרש מסלול אסדרה ייעודי הכולל סטנדרט מינימום ופיקוח פדגוגי</p></div>
+        </div>
+      </div>
+      <div style="background:white;margin:18px 28px;padding:20px;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.07)">
+        <h3 class="ed" style="color:#2c3e50;margin-bottom:12px;font-size:1.15em;text-align:center">🎯 מטרות הפרויקט</h3>
+        <div class="ed" style="background:#f8f9fa;margin:8px 0;padding:13px;border-radius:9px;border-right:4px solid #27ae60"><strong>1. פיתוח כשירויות STEM לתלמידים</strong><br><span style="color:#34495e;font-size:.93em">פיתוח כשירויות מדעיות, טכנולוגיות, הנדסיות ומתמטיות באמצעות למידה פעילה, חקר ופתרון בעיות.</span></div><div class="ed" style="background:#f8f9fa;margin:8px 0;padding:13px;border-radius:9px;border-right:4px solid #27ae60"><strong>2. חיזוק צוותי חינוך</strong><br><span style="color:#34495e;font-size:.93em">יצירת מרחב התנסות ופיתוח מקצועי לצוותי חינוך, קידום הוראה בין-תחומית.</span></div><div class="ed" style="background:#f8f9fa;margin:8px 0;padding:13px;border-radius:9px;border-right:4px solid #27ae60"><strong>3. בניית אקוסיסטם רשותי נגיש</strong><br><span style="color:#34495e;font-size:.93em">חיבור בין חינוך פורמלי, בלתי פורמלי וקהילתי, צמצום חסמים מגדריים וחברתיים.</span></div>
+      </div>
+      <div style="background:white;margin:18px 28px;padding:20px;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.07)">
+        <h3 class="ed" style="color:#2c3e50;margin-bottom:12px;font-size:1.15em;text-align:center">📋 תוצרים מצופים</h3>
+        <div class="ed" style="background:#f8f9fa;margin:8px 0;padding:13px;border-radius:9px;border-right:4px solid #27ae60"><strong>תפיסה ושפה משותפת</strong> — <span style="color:#34495e;font-size:.93em">הגדרה מוסכמת של מרכז STEM רשותי ועקרונות הפעולה הפדגוגיים.</span></div><div class="ed" style="background:#f8f9fa;margin:8px 0;padding:13px;border-radius:9px;border-right:4px solid #27ae60"><strong>מודל הפעלה פדגוגי-רשותי</strong> — <span style="color:#34495e;font-size:.93em">מסגרת פעולה המחברת תלמידים, מורים, רשות וקהילה.</span></div><div class="ed" style="background:#f8f9fa;margin:8px 0;padding:13px;border-radius:9px;border-right:4px solid #27ae60"><strong>מערכת מדידה ושיפור מתמיד</strong> — <span style="color:#34495e;font-size:.93em">כלי מעקב אחר השתתפות, איכות למידה ויישום בבתי הספר.</span></div>
+      </div>
+    </section>
+
+    <section id="s2" style="scroll-margin-top:55px">
+      <div  style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;padding:20px 35px;font-size:1.6em;font-weight:700;text-align:center" class="ed">⚠️ ניהול סיכונים</div>
+      <div style="padding:28px;background:white">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px">
+          <div style="background:linear-gradient(135deg,#f8f9fa,#e9ecef);padding:14px;border-radius:12px;text-align:center;box-shadow:0 5px 16px rgba(0,0,0,.07)"><div class="ed" style="font-size:2.2em;font-weight:700;color:#e74c3c">0</div><div style="font-size:.8em;color:#7f8c8d">גבוהה מאוד</div></div><div style="background:linear-gradient(135deg,#f8f9fa,#e9ecef);padding:14px;border-radius:12px;text-align:center;box-shadow:0 5px 16px rgba(0,0,0,.07)"><div class="ed" style="font-size:2.2em;font-weight:700;color:#f39c12">4</div><div style="font-size:.8em;color:#7f8c8d">גבוהה</div></div><div style="background:linear-gradient(135deg,#f8f9fa,#e9ecef);padding:14px;border-radius:12px;text-align:center;box-shadow:0 5px 16px rgba(0,0,0,.07)"><div class="ed" style="font-size:2.2em;font-weight:700;color:#e8b800">1</div><div style="font-size:.8em;color:#7f8c8d">בינונית</div></div><div style="background:linear-gradient(135deg,#f8f9fa,#e9ecef);padding:14px;border-radius:12px;text-align:center;box-shadow:0 5px 16px rgba(0,0,0,.07)"><div class="ed" style="font-size:2.2em;font-weight:700;color:#27ae60">0</div><div style="font-size:.8em;color:#7f8c8d">נמוכה</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px">
+    <div style="background:white;border-radius:14px;box-shadow:0 8px 25px rgba(0,0,0,.09);padding:22px;border-top:5px solid #f39c12">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px">
+        <div class="ed" style="font-size:1.05em;font-weight:700;color:#2c3e50;flex:1">פער בין חזון פדגוגי ליישום בפועל</div>
+        <div class="ed" style="background:#f39c12;color:white;padding:4px 12px;border-radius:20px;font-size:.75em;font-weight:700;white-space:nowrap">חומרה גבוהה</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;text-align:center">
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">8</div><div style="font-size:.78em;color:#7f8c8d">הסתברות</div></div>
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">9</div><div style="font-size:.78em;color:#7f8c8d">עוצמת נזק</div></div>
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">72</div><div style="font-size:.78em;color:#7f8c8d">דרגת חומרה</div></div>
+      </div>
+      <div class="ed" style="background:#f8f9fa;padding:12px;border-radius:8px;border-right:4px solid #bdc3c7;font-size:.93em;color:#34495e;line-height:1.6;margin-top:10px">מרכזים עלולים להצהיר על חדשנות אך לפעול כאוסף פעילויות נקודתיות ללא סטנדרט ופיקוח (נגזר ממטרה 1: פיתוח כשירויות STEM).</div>
+      <div class="ed" style="font-size:.8em;color:#555;background:#f0f4ff;padding:6px 11px;border-radius:7px;margin-top:8px;border-right:3px solid #3498db">📌 <strong>מקור:</strong> חוזר מנכ"ל לאסדרת חדשנות | סטנדרט פדגוגי</div>
+      <div style="margin-top:12px">
+        <div style="font-weight:700;color:#e74c3c;margin-bottom:5px">השלכות:</div>
+        <ul style="list-style:none;padding-right:10px"><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ פיתוח חלקי של כשירויות STEM</li><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ קושי להוכיח השפעה פדגוגית</li><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ שונות גבוהה באיכות בין מרכזים</li></ul>
+        <div style="font-weight:700;color:#27ae60;margin:10px 0 5px">הזדמנויות:</div>
+        <ul style="list-style:none;padding-right:10px"><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">✅ יצירת תו תקן פדגוגי למרכזי STEM</li><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">✅ בניית תיק פרקטיקות משותף לכלל המרכזים</li></ul>
+      </div>
+    </div>
+    <div style="background:white;border-radius:14px;box-shadow:0 8px 25px rgba(0,0,0,.09);padding:22px;border-top:5px solid #f39c12">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px">
+        <div class="ed" style="font-size:1.05em;font-weight:700;color:#2c3e50;flex:1">חוסר רצף בין המרכז לבתי הספר</div>
+        <div class="ed" style="background:#f39c12;color:white;padding:4px 12px;border-radius:20px;font-size:.75em;font-weight:700;white-space:nowrap">חומרה גבוהה</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;text-align:center">
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">8</div><div style="font-size:.78em;color:#7f8c8d">הסתברות</div></div>
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">8</div><div style="font-size:.78em;color:#7f8c8d">עוצמת נזק</div></div>
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">64</div><div style="font-size:.78em;color:#7f8c8d">דרגת חומרה</div></div>
+      </div>
+      <div class="ed" style="background:#f8f9fa;padding:12px;border-radius:8px;border-right:4px solid #bdc3c7;font-size:.93em;color:#34495e;line-height:1.6;margin-top:10px">פעילות המרכז עלולה להישאר מנותקת מתוכניות הלימודים ומסלולי ההמשך (נגזר ממטרה 3: אקוסיסטם רשותי).</div>
+      <div class="ed" style="font-size:.8em;color:#555;background:#f0f4ff;padding:6px 11px;border-radius:7px;margin-top:8px;border-right:3px solid #3498db">📌 <strong>מקור:</strong> חוזר מנכ"ל: ארגון הלמידה בחינוך העל-יסודי תשפ"ו</div>
+      <div style="margin-top:12px">
+        <div style="font-weight:700;color:#e74c3c;margin-bottom:5px">השלכות:</div>
+        <ul style="list-style:none;padding-right:10px"><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ כפילויות בין פעילויות המרכז לבית הספר</li><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ פגיעה ברצף ההתפתחות של הלומדים</li></ul>
+        <div style="font-weight:700;color:#27ae60;margin:10px 0 5px">הזדמנויות:</div>
+        <ul style="list-style:none;padding-right:10px"><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">✅ הקמת מנגנון תיאום רשותי עם בתי הספר</li><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">✅ פיתוח מסלולים רב-שנתיים לפי שכבות גיל</li></ul>
+      </div>
+    </div>
+    <div style="background:white;border-radius:14px;box-shadow:0 8px 25px rgba(0,0,0,.09);padding:22px;border-top:5px solid #f39c12">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px">
+        <div class="ed" style="font-size:1.05em;font-weight:700;color:#2c3e50;flex:1">הכשרת צוות בלתי מספקת</div>
+        <div class="ed" style="background:#f39c12;color:white;padding:4px 12px;border-radius:20px;font-size:.75em;font-weight:700;white-space:nowrap">חומרה גבוהה</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;text-align:center">
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">7</div><div style="font-size:.78em;color:#7f8c8d">הסתברות</div></div>
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">8</div><div style="font-size:.78em;color:#7f8c8d">עוצמת נזק</div></div>
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">56</div><div style="font-size:.78em;color:#7f8c8d">דרגת חומרה</div></div>
+      </div>
+      <div class="ed" style="background:#f8f9fa;padding:12px;border-radius:8px;border-right:4px solid #bdc3c7;font-size:.93em;color:#34495e;line-height:1.6;margin-top:10px">ללא מודל הכשרה, הטכנולוגיות לא יהפכו לפרקטיקה פדגוגית איכותית (נגזר ממטרה 2: חיזוק צוותי חינוך).</div>
+      <div class="ed" style="font-size:.8em;color:#555;background:#f0f4ff;padding:6px 11px;border-radius:7px;margin-top:8px;border-right:3px solid #3498db">📌 <strong>מקור:</strong> פיתוח מקצועי – פורטל עובדי הוראה | אופק חדש</div>
+      <div style="margin-top:12px">
+        <div style="font-weight:700;color:#e74c3c;margin-bottom:5px">השלכות:</div>
+        <ul style="list-style:none;padding-right:10px"><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ שימוש טכני ולא פדגוגי בציוד</li><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ פערי איכות בין מדריכים ומורים</li></ul>
+        <div style="font-weight:700;color:#27ae60;margin:10px 0 5px">הזדמנויות:</div>
+        <ul style="list-style:none;padding-right:10px"><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">✅ בניית מסלול פיתוח מקצועי ייעודי</li><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">✅ יצירת קהילת למידה רשותית</li></ul>
+      </div>
+    </div>
+    <div style="background:white;border-radius:14px;box-shadow:0 8px 25px rgba(0,0,0,.09);padding:22px;border-top:5px solid #f39c12">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px">
+        <div class="ed" style="font-size:1.05em;font-weight:700;color:#2c3e50;flex:1">אי-הוגנות בנגישות ובהשתתפות</div>
+        <div class="ed" style="background:#f39c12;color:white;padding:4px 12px;border-radius:20px;font-size:.75em;font-weight:700;white-space:nowrap">חומרה גבוהה</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;text-align:center">
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">7</div><div style="font-size:.78em;color:#7f8c8d">הסתברות</div></div>
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">9</div><div style="font-size:.78em;color:#7f8c8d">עוצמת נזק</div></div>
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">63</div><div style="font-size:.78em;color:#7f8c8d">דרגת חומרה</div></div>
+      </div>
+      <div class="ed" style="background:#f8f9fa;padding:12px;border-radius:8px;border-right:4px solid #bdc3c7;font-size:.93em;color:#34495e;line-height:1.6;margin-top:10px">המרכז עלול לשרת בעיקר תלמידים חזקים במקום להרחיב הזדמנויות (נגזר ממטרה 3: אקוסיסטם רשותי).</div>
+      <div class="ed" style="font-size:.8em;color:#555;background:#f0f4ff;padding:6px 11px;border-radius:7px;margin-top:8px;border-right:3px solid #3498db">📌 <strong>מקור:</strong> חוק לימוד חובה, תש"ט–1949 | חוק חינוך ממלכתי, 1953</div>
+      <div style="margin-top:12px">
+        <div style="font-weight:700;color:#e74c3c;margin-bottom:5px">השלכות:</div>
+        <ul style="list-style:none;padding-right:10px"><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ העמקת פערי השתתפות ב-STEM</li><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ החמצת אוכלוסיות שאינן מזוהות עם מדע</li></ul>
+        <div style="font-weight:700;color:#27ae60;margin:10px 0 5px">הזדמנויות:</div>
+        <ul style="list-style:none;padding-right:10px"><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">✅ קביעת מדדי נגישות והשתתפות מגוונת</li><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">✅ פיתוח מסלולי כניסה פתוחים</li></ul>
+      </div>
+    </div>
+    <div style="background:white;border-radius:14px;box-shadow:0 8px 25px rgba(0,0,0,.09);padding:22px;border-top:5px solid #e8b800">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px">
+        <div class="ed" style="font-size:1.05em;font-weight:700;color:#2c3e50;flex:1">שותפויות חיצוניות ללא גבולות רגולטוריים</div>
+        <div class="ed" style="background:#e8b800;color:#2c3e50;padding:4px 12px;border-radius:20px;font-size:.75em;font-weight:700;white-space:nowrap">חומרה בינונית</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;text-align:center">
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">6</div><div style="font-size:.78em;color:#7f8c8d">הסתברות</div></div>
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">8</div><div style="font-size:.78em;color:#7f8c8d">עוצמת נזק</div></div>
+        <div style="background:#f8f9fa;padding:10px;border-radius:8px"><div class="ed" style="font-size:1.5em;font-weight:700">48</div><div style="font-size:.78em;color:#7f8c8d">דרגת חומרה</div></div>
+      </div>
+      <div class="ed" style="background:#f8f9fa;padding:12px;border-radius:8px;border-right:4px solid #bdc3c7;font-size:.93em;color:#34495e;line-height:1.6;margin-top:10px">מעורבות תעשייה ואקדמיה עלולה ליצור השפעה לא מבוקרת על תוכן (נגזר ממטרה 3: אקוסיסטם רשותי).</div>
+      <div class="ed" style="font-size:.8em;color:#555;background:#f0f4ff;padding:6px 11px;border-radius:7px;margin-top:8px;border-right:3px solid #3498db">📌 <strong>מקור:</strong> חדשנות אחראית ושימוש בכלי בינה מלאכותית בחינוך (2025)</div>
+      <div style="margin-top:12px">
+        <div style="font-weight:700;color:#e74c3c;margin-bottom:5px">השלכות:</div>
+        <ul style="list-style:none;padding-right:10px"><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ טשטוש אחריות פדגוגית</li><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">⚠️ חשש להטיות בתכנים</li></ul>
+        <div style="font-weight:700;color:#27ae60;margin:10px 0 5px">הזדמנויות:</div>
+        <ul style="list-style:none;padding-right:10px"><li class="ed" style="padding:5px 0;border-bottom:1px solid #ecf0f1;font-size:.9em">✅ הסכמי שותפות מחייבים עם גבולות פדגוגיים</li></ul>
+      </div>
+    </div></div>
+      </div>
+    </section>
+
+    <section id="s3" style="scroll-margin-top:55px">
+      <div  style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;padding:20px 35px;font-size:1.6em;font-weight:700;text-align:center" class="ed">📈 תוכנית התמודדות</div>
+      <div style="padding:28px;background:linear-gradient(135deg,#ecf0f1,#dfe6e9)">
+    <div style="background:white;border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.08);overflow:hidden;margin-bottom:20px">
+      <div class="ed" style="background:linear-gradient(135deg,#27ae60,#2ecc71);color:white;padding:16px 22px;font-weight:700;font-size:1.05em">אסטרטגיה 1 — סטנדרט פדגוגי ותו תקן</div>
+      <div style="padding:20px 22px">
+        <p class="ed" style="color:#34495e;margin-bottom:14px">הגדרת ליבה מחייבת למרכזי STEM, לצד התאמה מקומית גמישה לכל רשות.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+          <div style="background:#f8f9fa;padding:12px;border-radius:10px;border-right:4px solid #27ae60">
+            <h5 class="ed" style="color:#27ae60;margin-bottom:4px;font-size:.92em">גיבוש מסמך סטנדרט</h5>
+            <p class="ed" style="font-size:.85em;color:#34495e">הגדרת דרישות מינימום לתוכן, בטיחות, נגישות, הכשרה ומדידה.</p>
+            <span style="display:inline-block;background:#3498db;color:white;padding:2px 9px;border-radius:11px;font-size:.74em;margin-top:4px">לפני הפעלה</span>
+          </div><div style="background:#f8f9fa;padding:12px;border-radius:10px;border-right:4px solid #27ae60">
+            <h5 class="ed" style="color:#27ae60;margin-bottom:4px;font-size:.92em">אישור תוכנית מרכז</h5>
+            <p class="ed" style="font-size:.85em;color:#34495e">כל מרכז יגיש תוכנית שנתית הכוללת מסלולי למידה ומדדי הצלחה.</p>
+            <span style="display:inline-block;background:#3498db;color:white;padding:2px 9px;border-radius:11px;font-size:.74em;margin-top:4px">תנאי להפעלה</span>
+          </div><div style="background:#f8f9fa;padding:12px;border-radius:10px;border-right:4px solid #27ae60">
+            <h5 class="ed" style="color:#27ae60;margin-bottom:4px;font-size:.92em">מדד הצלחה</h5>
+            <p class="ed" style="font-size:.85em;color:#34495e">כל מרכז מציג תיק פעילויות מאושר ומנגנון משוב תקופתי.</p>
+            <span style="display:inline-block;background:#8e44ad;color:white;padding:2px 9px;border-radius:11px;font-size:.74em;margin-top:4px">KPI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="background:white;border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.08);overflow:hidden;margin-bottom:20px">
+      <div class="ed" style="background:linear-gradient(135deg,#27ae60,#2ecc71);color:white;padding:16px 22px;font-weight:700;font-size:1.05em">אסטרטגיה 2 — רצף למידה ותיאום עם בתי הספר</div>
+      <div style="padding:20px 22px">
+        <p class="ed" style="color:#34495e;margin-bottom:14px">יצירת מנגנון קבוע המחבר את המרכז לתוכניות הלימודים ולמסלולי המשך.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+          <div style="background:#f8f9fa;padding:12px;border-radius:10px;border-right:4px solid #27ae60">
+            <h5 class="ed" style="color:#27ae60;margin-bottom:4px;font-size:.92em">מיפוי שכבות ותוכניות</h5>
+            <p class="ed" style="font-size:.85em;color:#34495e">מיפוי שכבות הגיל, תחומי הדעת ומסלולי ההמשך בבתי הספר.</p>
+            <span style="display:inline-block;background:#3498db;color:white;padding:2px 9px;border-radius:11px;font-size:.74em;margin-top:4px">שלב תכנון</span>
+          </div><div style="background:#f8f9fa;padding:12px;border-radius:10px;border-right:4px solid #27ae60">
+            <h5 class="ed" style="color:#27ae60;margin-bottom:4px;font-size:.92em">ועדת תיאום פדגוגית</h5>
+            <p class="ed" style="font-size:.85em;color:#34495e">ועדה הכוללת נציגי רשות, מנהלים, מורים וצוות המרכז — רבעונית.</p>
+            <span style="display:inline-block;background:#3498db;color:white;padding:2px 9px;border-radius:11px;font-size:.74em;margin-top:4px">רבעוני</span>
+          </div><div style="background:#f8f9fa;padding:12px;border-radius:10px;border-right:4px solid #27ae60">
+            <h5 class="ed" style="color:#27ae60;margin-bottom:4px;font-size:.92em">מדד הצלחה</h5>
+            <p class="ed" style="font-size:.85em;color:#34495e">לכל שכבת גיל מוגדר מסלול למידה מצטבר המחובר לתחום דעת.</p>
+            <span style="display:inline-block;background:#8e44ad;color:white;padding:2px 9px;border-radius:11px;font-size:.74em;margin-top:4px">KPI</span>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    </section>
+
+    <section id="s4" style="scroll-margin-top:55px">
+      <div  style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;padding:20px 35px;font-size:1.6em;font-weight:700;text-align:center" class="ed">🚀 אסדרת חדשנות</div>
+      <div style="padding:28px;background:linear-gradient(135deg,#f8f9fa,#e9ecef)">
+        <div style="background:white;padding:22px;border-radius:14px;margin-bottom:16px;box-shadow:0 5px 16px rgba(0,0,0,.07)">
+          <h3 class="ed" style="color:#8e44ad;margin-bottom:10px">הגדרת רמת החדשנות — מרכז STEM רשותי</h3>
+          <p class="ed" style="color:#34495e;line-height:1.8">החדשנות היא שילוב בין מרחב פיזי, פדגוגיה רב-תחומית, טכנולוגיות מתקדמות ושותפויות. החדשנות אינה בציוד בלבד אלא במודל החיבור בין למידה, קהילה, מורים, תעשייה ואקדמיה.</p>
+          <p class="ed" style="color:#34495e;line-height:1.8;margin-top:10px">עקרונות RRI: שלומות — הטכנולוגיה משרתת למידה; שקיפות — שותפויות מפוקחות; אחריותיות — ועדת היגוי רשותית; מידתיות — היקף מוגדר ומבוקר.</p>
+        </div>
+        <div style="background:#f0f8ff;padding:18px;border-radius:12px;border-left:5px solid #3498db">
+          <h4 style="color:#34495e;margin-bottom:8px">🏛️ המלצת ועדת המשנה לאסדרת חדשנות</h4>
+          <p class="ed" style="color:#34495e;line-height:1.8">מומלץ לאשר בתנאי שיוגדרו סטנדרט מינימום, מנגנון פיקוח פדגוגי, הכשרת צוות, מדיניות נגישות, הסכמי שותפות מחייבים ומערכת מדידה לפני הרחבה.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="s5" style="scroll-margin-top:55px">
+      <div  style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;padding:20px 35px;font-size:1.6em;font-weight:700;text-align:center" class="ed">📊 רמת החדשנות</div>
+      <div style="background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;padding:35px;text-align:center">
+        <h2 class="ed" style="font-size:1.3em;margin-bottom:4px">ציון חדשנות כולל</h2>
+        <div class="ed" style="font-size:4.5em;font-weight:700;margin:16px 0;text-shadow:2px 2px 5px rgba(0,0,0,.3)">7</div>
+        <div class="ed" style="font-size:1.1em;opacity:.9;margin-top:-10px;margin-bottom:12px">/ 10 — חדשנות בינונית-גבוהה</div>
+        <p class="ed" style="opacity:.85;max-width:600px;margin:0 auto 20px">השפעה פדגוגית גבוהה ושינוי ארגוני משמעותי, לצד מורכבות רגולטורית וצורך בפיקוח.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+          <div style="background:rgba(255,255,255,.14);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.2)"><div class="ed" style="font-size:2em;font-weight:700;color:#f39c12;margin-bottom:4px">8</div><div class="ed" style="font-weight:700;margin-bottom:4px">השפעה פדגוגית</div><p class="ed" style="opacity:.85;font-size:.86em">המרכז משנה למידה מבודדת ללמידה רב-תחומית, התנסותית ומבוססת בעיות.</p></div><div style="background:rgba(255,255,255,.14);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.2)"><div class="ed" style="font-size:2em;font-weight:700;color:#f39c12;margin-bottom:4px">7</div><div class="ed" style="font-weight:700;margin-bottom:4px">מורכבות טכנולוגית</div><p class="ed" style="opacity:.85;font-size:.86em">ציוד, סביבות דיגיטליות, בינה מלאכותית ורובוטיקה — טכנולוגיה כאמצעי פדגוגי.</p></div><div style="background:rgba(255,255,255,.14);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.2)"><div class="ed" style="font-size:2em;font-weight:700;color:#f39c12;margin-bottom:4px">7</div><div class="ed" style="font-weight:700;margin-bottom:4px">שינוי ארגוני</div><p class="ed" style="opacity:.85;font-size:.86em">תיאום בין משרד החינוך, רשות, בתי ספר, צוותי מרכז, קהילה ושותפים.</p></div><div style="background:rgba(255,255,255,.14);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.2)"><div class="ed" style="font-size:2em;font-weight:700;color:#f39c12;margin-bottom:4px">6</div><div class="ed" style="font-weight:700;margin-bottom:4px">סיכון טכנולוגי</div><p class="ed" style="opacity:.85;font-size:.86em">הסיכון ניתן לניהול עם גבולות שימוש, פיקוח פדגוגי ומנגנון עדכון.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="s6" style="scroll-margin-top:55px">
+      <div  style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;padding:20px 35px;font-size:1.6em;font-weight:700;text-align:center" class="ed">✅ התאמה לדרישות אסדרה</div>
+      <div style="padding:28px;background:#ecf0f1">
+        <table style="width:100%;background:white;border-radius:14px;overflow:hidden;box-shadow:0 5px 16px rgba(0,0,0,.07);border-collapse:collapse">
+          <thead><tr style="background:#34495e;color:white"><th style="padding:13px 16px;text-align:right;font-weight:700">דרישת אסדרה</th><th style="padding:13px 16px;text-align:right;font-weight:700">סטטוס</th><th style="padding:13px 16px;text-align:right;font-weight:700">פעולה נדרשת</th></tr></thead>
+          <tbody><tr style="border-bottom:1px solid #ecf0f1"><td class="ed" style="padding:13px 16px;vertical-align:top"><strong>סטנדרט מינימום למרכז STEM</strong><br><small style="color:#7f8c8d">דרישות בסיס למרחב, ציוד, כוח אדם, תוכנית עבודה ובטיחות.</small></td><td style="padding:13px 16px;vertical-align:top"><span style="background:#3498db;color:white;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:700;display:inline-block">בפיתוח</span></td><td class="ed" style="padding:13px 16px;vertical-align:top">משרד החינוך יגבש מסמך סטנדרט מחייב לפני אישור הפעלה.</td></tr><tr style="border-bottom:1px solid #ecf0f1"><td class="ed" style="padding:13px 16px;vertical-align:top"><strong>פיקוח פדגוגי על תוכניות</strong><br><small style="color:#7f8c8d">אישור תוכניות למידה, התאמה לגיל וחיבור לתוכניות הלימודים.</small></td><td style="padding:13px 16px;vertical-align:top"><span style="background:#f39c12;color:white;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:700;display:inline-block">עמידה חלקית</span></td><td class="ed" style="padding:13px 16px;vertical-align:top">להקים ועדת תיאום פדגוגית רשותית שתאשר תוכנית שנתית.</td></tr><tr style="border-bottom:1px solid #ecf0f1"><td class="ed" style="padding:13px 16px;vertical-align:top"><strong>הכשרת צוות וליווי מקצועי</strong><br><small style="color:#7f8c8d">הכשרה מחייבת למדריכים ומורים בחקר, פרויקטים ובטיחות.</small></td><td style="padding:13px 16px;vertical-align:top"><span style="background:#e74c3c;color:white;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:700;display:inline-block">דורש שיפור</span></td><td class="ed" style="padding:13px 16px;vertical-align:top">הגדרת מסלול הכשרה ותיעוד השתתפות לכל בעל תפקיד.</td></tr><tr style="border-bottom:1px solid #ecf0f1"><td class="ed" style="padding:13px 16px;vertical-align:top"><strong>נגישות והוגנות</strong><br><small style="color:#7f8c8d">השתתפות מגוונת, מסלולים פתוחים ושקיפות בתהליכי קבלה.</small></td><td style="padding:13px 16px;vertical-align:top"><span style="background:#3498db;color:white;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:700;display:inline-block">בפיתוח</span></td><td class="ed" style="padding:13px 16px;vertical-align:top">הרשות תפרסם מדיניות השתתפות ותעקוב אחר ייצוג אוכלוסיות.</td></tr><tr style="border-bottom:1px solid #ecf0f1"><td class="ed" style="padding:13px 16px;vertical-align:top"><strong>הסדרת שותפויות חיצוניות</strong><br><small style="color:#7f8c8d">גבולות אחריות לתעשייה, אקדמיה ויזמים.</small></td><td style="padding:13px 16px;vertical-align:top"><span style="background:#3498db;color:white;padding:3px 10px;border-radius:10px;font-size:.82em;font-weight:700;display:inline-block">בפיתוח</span></td><td class="ed" style="padding:13px 16px;vertical-align:top">כל שותף יחתום על הסכם פדגוגי-רגולטורי לפני כניסה לפעילות.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="s7" style="scroll-margin-top:55px">
+      <div  style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;padding:20px 35px;font-size:1.6em;font-weight:700;text-align:center" class="ed">📝 סיכום מנהלים והמלצות</div>
+      <div style="padding:28px;background:linear-gradient(135deg,#2c3e50,#34495e);color:white">
+        <h2 class="ed" style="text-align:center;color:#f39c12;margin-bottom:16px">סיכום ביצועי</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:18px">
+          <div style="background:rgba(255,255,255,.1);padding:15px;border-radius:12px;border:1px solid rgba(255,255,255,.14)"><h4 style="color:#f39c12;margin-bottom:6px;font-size:.92em">📊 רמת חדשנות</h4><p class="ed" style="font-size:.9em">7/10 — חדשנות בינונית-גבוהה הנשענת על פדגוגיה רב-תחומית ושותפויות</p></div><div style="background:rgba(255,255,255,.1);padding:15px;border-radius:12px;border:1px solid rgba(255,255,255,.14)"><h4 style="color:#f39c12;margin-bottom:6px;font-size:.92em">🔐 הסיכון הגדול</h4><p class="ed" style="font-size:.9em">פער בין חזון פדגוגי ליישום — ציון 72 — פתרון: תו תקן, מדידה ופיקוח</p></div><div style="background:rgba(255,255,255,.1);padding:15px;border-radius:12px;border:1px solid rgba(255,255,255,.14)"><h4 style="color:#f39c12;margin-bottom:6px;font-size:.92em">⚠️ רמת סיכון כוללת</h4><p class="ed" style="font-size:.9em">4 סיכונים גבוהים, 1 בינוני — ניתן למיתון עם סטנדרט ומנגנוני פיקוח</p></div>
+        </div>
+        <div style="background:rgba(255,255,255,.07);padding:18px;border-radius:12px">
+          <h3 style="color:#f39c12;margin-bottom:12px">💡 המלצות מרכזיות</h3>
+          <div class="ed" style="background:rgba(255,255,255,.07);margin:9px 0;padding:12px;border-radius:9px;border-right:4px solid #f39c12;font-size:.91em"><strong>1. למטרה: כשירויות STEM</strong><br>לאשר פעילות תלמידים רק אם כוללת תוצר, בעיה אותנטית, עבודת צוות ומדד למידה ברור.</div><div class="ed" style="background:rgba(255,255,255,.07);margin:9px 0;padding:12px;border-radius:9px;border-right:4px solid #f39c12;font-size:.91em"><strong>2. למטרה: חיזוק צוותים</strong><br>להפעיל מסלול הכשרה מחייב למדריכים ומורים, כולל קהילת למידה ופיתוח יחידות הוראה.</div><div class="ed" style="background:rgba(255,255,255,.07);margin:9px 0;padding:12px;border-radius:9px;border-right:4px solid #f39c12;font-size:.91em"><strong>3. למטרה: אקוסיסטם רשותי</strong><br>להקים ועדת היגוי רשותית שתנהל רצף בין בתי הספר, המרכז, הקהילה והשותפים.</div>
+        </div>
+        <p class="ed" style="text-align:center;margin-top:16px;opacity:.7;font-size:.88em">צעדים מיידיים: (1) גיבוש סטנדרט מינימום פדגוגי | (2) מינוי ועדת תיאום רשותית | (3) בניית מערכת מדידה ונגישות</p>
+      </div>
+    </section>
+
+    <section id="s8" style="scroll-margin-top:55px">
+      <div style="background:linear-gradient(135deg,#16a085,#1abc9c);color:white;padding:20px 35px;font-size:1.6em;font-weight:700;text-align:center">📚 מקורות ידע</div>
+      <div style="background:linear-gradient(135deg,#1a252f,#2c3e50);padding:32px;color:white">
+        
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px">
+    <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,.14)">
+      <div style="font-size:.93em;font-weight:700;color:#1abc9c;margin-bottom:11px;padding-bottom:7px;border-bottom:2px solid rgba(26,188,156,.3)">🏛️ חוקים ורגולציית חינוך</div>
+      <div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://innovate.education.gov.il/" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">📌 חוזר מנכ"ל לאסדרת חדשנות</a></div><div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://www.nevo.co.il/law_html/law01/053_001.htm" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">⚖️ חוק לימוד חובה, תש"ט–1949</a></div><div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://edu.gov.il/owlHtml/sites/MazkirutPed/ChozreMankal/" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">📂 מאגר חוזרי מנכ"ל</a></div><div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://www.nevo.co.il/law_html/law01/058_001.htm" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">⚖️ חוק חינוך ממלכתי, 1953</a></div><div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://edu.gov.il/minhalpedagogy/law" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">📋 חוקי חינוך כלליים</a></div><div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://edu.gov.il/minhalpedagogy/shaat-chinuch/core" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">📖 תוכנית ליבה לשעת חינוך</a></div>
+    </div>
+    <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,.14)">
+      <div style="font-size:.93em;font-weight:700;color:#1abc9c;margin-bottom:11px;padding-bottom:7px;border-bottom:2px solid rgba(26,188,156,.3)">🤖 חדשנות אחראית ובינה מלאכותית</div>
+      <div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://innovate.education.gov.il/AI" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">🧠 שימוש בכלי בינה מלאכותית בחינוך (2025)</a></div><div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://innovate.education.gov.il/regulation-map" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">🗺️ מפת התמצאות לאסדרת חדשנות</a></div>
+    </div>
+    <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,.14)">
+      <div style="font-size:.93em;font-weight:700;color:#1abc9c;margin-bottom:11px;padding-bottom:7px;border-bottom:2px solid rgba(26,188,156,.3)">📊 תכנון ובקרה</div>
+      <div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://harhayeda.gov.il/media/4wqogjpb/20241208-tasc-di-cio-methodology-for-publishing-v01.pdf" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">📄 מדריך לתכנון ובקרה (CIO, 2024)</a></div>
+    </div>
+    <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,.14)">
+      <div style="font-size:.93em;font-weight:700;color:#1abc9c;margin-bottom:11px;padding-bottom:7px;border-bottom:2px solid rgba(26,188,156,.3)">💰 שכר ותנאי העסקה</div>
+      <div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://www.irgun-morim.org.il/oz-letmura" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">📝 עוז לתמורה – ארגון המורים (חט"ע)</a></div><div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://www.edu.gov.il/minhalpedagogy/ofek-hadash" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">📝 אופק חדש – הסתדרות המורים</a></div>
+    </div>
+    <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,.14)">
+      <div style="font-size:.93em;font-weight:700;color:#1abc9c;margin-bottom:11px;padding-bottom:7px;border-bottom:2px solid rgba(26,188,156,.3)">📅 ארגון לימודים ופיתוח מקצועי</div>
+      <div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://edu.gov.il/owlHtml/sites/MazkirutPed/ChozreMankal/Pages/tashpav-1-11.aspx" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">🗓️ ארגון הלמידה בחינוך העל-יסודי תשפ"ו</a></div><div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://teachers.education.gov.il/professional-development" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">🎓 פיתוח מקצועי – פורטל עובדי הוראה</a></div><div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://www.edu.gov.il/minhalpedagogy/histadrut" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">🏫 הנחיות הסתדרות המורים</a></div><div style="margin:5px 0;padding:6px 10px;background:rgba(255,255,255,.06);border-radius:6px;border-right:3px solid #1abc9c"><a href="https://edu.gov.il/minhalpedagogy/curricula/textbooks" target="_blank" rel="noopener" style="color:#abebc6;text-decoration:none;font-size:.85em">📚 מאגר ספרי לימוד מאושרים</a></div>
+    </div></div>
+        <div style="margin-top:18px;background:rgba(26,188,156,.1);border:1px solid rgba(26,188,156,.25);border-radius:10px;padding:13px;font-size:.83em;color:rgba(255,255,255,.8)">
+          <strong style="color:#1abc9c">📌 הערת שימוש:</strong> המקורות עשויים להשתנות מעת לעת. לבדיקת עדכוני מדיניות:
+          <a href="https://edu.gov.il" target="_blank" style="color:#1abc9c">edu.gov.il</a>
+        </div>
+      </div>
+    </section>
+
+    <div style="background:#1a252f;color:#7f8c8d;text-align:center;padding:22px;font-size:.88em">
+      <p class="ed">דוח ניהול סיכונים — מרכזי STEM רשותיים | משרד החינוך | אפריל 2026</p>
+      <p style="margin-top:5px;opacity:.8">מבוסס על: חוזר מנכ"ל לאסדרת חדשנות | עקרונות RRI | חוק לימוד חובה | אופק חדש</p>
+      <p style="margin-top:10px"><strong style="color:#3498db">פיתוח ועיצוב: ד"ר אסף אוזן</strong></p>
+    </div></div></div></body></html>`;
 </script>
 </body>
 </html>
